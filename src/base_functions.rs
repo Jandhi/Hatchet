@@ -11,7 +11,9 @@ fn print(args: Vec<Box<dyn Value>>) -> Box<dyn Value> {
 
 pub fn load_base_scope() -> Scope {
     let func : Box<dyn Value> = Box::from(Function{
-        call: print
+        func: print,
+        min_args: 1,
+        max_args: 1,
     });
 
     let base_functions : HashMap<String, Box<dyn Value>> = HashMap::from([

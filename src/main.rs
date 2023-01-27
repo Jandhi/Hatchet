@@ -7,6 +7,7 @@ mod value;
 mod types { 
     pub mod types; 
     pub mod string; 
+    pub mod integer;
 }
 mod scope;
 mod base_functions;
@@ -18,7 +19,7 @@ fn main() {
 
     let func = (*scope.items[&String::from("print")]).as_func();
 
-    let method = func.call;
+    let method = func.func;
 
     let retval = (method)(vec![Box::from(StringValue{contents: String::from("test")})]);
 }

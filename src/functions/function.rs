@@ -2,7 +2,9 @@ use crate::value::Value;
 use crate::types::types::Type;
 
 pub struct Function {
-    pub call: fn(Vec<Box<dyn Value>>) -> Box<dyn Value>,
+    pub func: fn(Vec<Box<dyn Value>>) -> Box<dyn Value>,
+    pub min_args : u8,
+    pub max_args : u8,
 }
 
 impl Value for Function {
@@ -17,4 +19,7 @@ impl Value for Function {
     fn as_func(&self) -> &Function {
         &self
     }
+}
+
+impl Function {
 }

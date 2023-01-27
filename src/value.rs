@@ -1,4 +1,11 @@
-use crate::{types::types::Type, functions::function::Function, types::string::StringValue};
+use crate::{
+    types::{
+        types::Type,
+        string::StringValue,
+        integer::Integer,
+    },
+    functions::function::Function
+};
 
 pub trait Value {
     fn get_type(&self) -> Type;
@@ -9,5 +16,8 @@ pub trait Value {
     }
     fn as_string(&self) -> &StringValue {
         panic!("This isn't a string!")
+    }
+    fn as_int(&self) -> &Integer {
+        panic!("This isn't an integer!")
     }
 }

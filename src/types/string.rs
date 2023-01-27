@@ -11,7 +11,7 @@ impl Value for StringValue {
     }
 
     fn print(&self) {
-        println!("{0}", self.contents);
+        print!("{0}", self.contents);
     }
 
     fn as_string(&self) -> &StringValue {
