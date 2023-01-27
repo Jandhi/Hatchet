@@ -1,0 +1,3 @@
+struct Argument {
+    name: String,
+}
