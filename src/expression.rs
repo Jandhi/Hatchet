@@ -1,5 +1,5 @@
 use crate::value::Value;
 
 pub trait Expression {
-    fn evaluate(&self) -> Box<dyn Value>;
+    fn evaluate(&mut self) -> Value;
 }

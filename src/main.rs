@@ -2,6 +2,7 @@ use base_functions::load_base_scope;
 use functions::function::Function;
 use types::string::StringValue;
 use std::fs;
+use lexer::lexer::lex;
 
 mod value;
 mod types { 
@@ -21,18 +22,15 @@ mod lexer {
     pub mod lexer;
     pub mod token;
 }
+mod parser {
+    pub mod parse;
+}
+mod block;
 
 fn main() {
-    let scope = load_base_scope();
 
-    let func = (*scope.items[&String::from("print")]).as_func();
-
-    let method = func.func;
-
-    let retval = (method)(&vec![Box::from(StringValue{contents: String::from("test")})]);
-
-    let contents = fs::read_to_string("test.hat")
+    let contents = fs::read_to_string("hatchet/test.hat")
         .expect("Should have been able to read the file");
 
-    print!("{}", contents);
+    lex(contents.as_str());
 }

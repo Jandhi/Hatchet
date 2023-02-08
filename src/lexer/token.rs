@@ -1,4 +1,4 @@
-enum TokenType {
+pub enum TokenType {
     Identifier,
     Keyword,
     Separator,
@@ -8,6 +8,6 @@ enum TokenType {
 }
 
 pub struct Token {
-    tokenType : TokenType,
-    contents : String,
+    pub token_type : TokenType,
+    pub contents : String,
 }

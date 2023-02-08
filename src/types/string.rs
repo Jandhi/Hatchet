@@ -1,11 +1,11 @@
-use crate::value::Value;
+use crate::value::Data;
 use crate::types::types::Type;
 
 pub struct StringValue {
     pub contents: String,
 }
 
-impl Value for StringValue {
+impl Data for StringValue {
     fn get_type(&self) -> Type {
         Type::String
     }

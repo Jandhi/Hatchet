@@ -3,11 +3,11 @@ use super::function::Function;
 
 pub struct FunctionCall {
     function : Function,
-    args : Vec<Box<dyn Value>>
+    args : Vec<Value>
 }   
 
 impl Expression for FunctionCall {
-    fn evaluate(&self) -> Box<dyn Value> {
+    fn evaluate(&mut self) -> Value {
         (self.function.func)(&self.args)
     }
 }
