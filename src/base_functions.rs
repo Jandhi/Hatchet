@@ -4,7 +4,7 @@ use crate::value::Value;
 use crate::none::None;
 use std::collections::HashMap;
 
-fn print(args: Vec<Box<dyn Value>>) -> Box<dyn Value> {
+fn print(args: &Vec<Box<dyn Value>>) -> Box<dyn Value> {
     let _ = &args[0].print();
     return Box::from(None{});
 }
