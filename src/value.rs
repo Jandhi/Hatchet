@@ -7,7 +7,7 @@ use crate::{
     functions::function::Function, expression::Expression
 };
 
-pub trait Data {
+pub trait Value {
     fn get_type(&self) -> Type;
     fn print(&self);
 
@@ -19,15 +19,5 @@ pub trait Data {
     }
     fn as_int(&self) -> &Integer {
         panic!("This isn't an integer!")
-    }
-}
-
-pub struct Value {
-    pub data : Box<dyn Data>
-}
-
-impl  Expression for Value {
-    fn evaluate(&mut self) -> Value {
-        *self
     }
 }

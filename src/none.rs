@@ -1,9 +1,9 @@
-use crate::value::Data;
+use crate::value::Value;
 use crate::types::types::Type;
 
 pub struct None {}
 
-impl Data for None {
+impl Value for None {
     fn get_type(&self) -> Type {
         Type::None
     }

@@ -1,11 +1,13 @@
-use crate::value::Data;
+use crate::expression::Expression;
+use crate::value::Value;
 use crate::types::types::Type;
 
+#[derive(Clone)]
 pub struct StringValue {
     pub contents: String,
 }
 
-impl Data for StringValue {
+impl Value for StringValue {
     fn get_type(&self) -> Type {
         Type::String
     }
@@ -16,5 +18,11 @@ impl Data for StringValue {
 
     fn as_string(&self) -> &StringValue {
         &self
+    }
+}
+
+impl Expression for StringValue {
+    fn evaluate(&self) -> Box<dyn Value> {
+        Box::from(self.clone())
     }
 }

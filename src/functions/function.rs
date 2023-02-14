@@ -1,14 +1,16 @@
+use std::collections::HashMap;
+
 use crate::value::Value;
-use crate::value::Data;
 use crate::types::types::Type;
+use crate::functions::args::Args;
 
 pub struct Function {
-    pub func: fn(&Vec<Value>) -> Value,
+    pub func: fn(args : Args) -> Box<dyn Value>,
     pub min_args : u8,
     pub max_args : u8,
 }
 
-impl Data for Function {
+impl Value for Function {
     fn get_type(&self) -> Type {
         Type::Function
     }
@@ -23,4 +25,5 @@ impl Data for Function {
 }
 
 impl Function {
+    
 }
