@@ -1,1 +1,20 @@
+// Basic function call
 print 'test'
+
+// Expression evaluation
+print (1 + 1)
+
+// Variable assignment
+x = 3
+
+// Function assignment
+add = (a, b) => { a + b }
+
+// Void function
+hello = {
+    print 'hello world'
+}
+
+// Function used
+add 1 1 | print
+

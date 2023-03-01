@@ -1,6 +1,7 @@
 use std::collections::HashMap;
-use crate::value::Value;
+use crate::{value::Value};
 
 pub struct Scope {
-    pub items : HashMap<String, Box<dyn Value>>,
+    pub identifiers : HashMap<String, Value>,
+    pub arguments : Vec<Value>
 }

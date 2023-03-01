@@ -1,0 +1,13 @@
+print 'What is your name?'
+name := readline
+
+if name == 'alice' or name == 'bob'
+    print 'Hello {name}'
+
+if name in 'alice', 'bob' // tuple
+
+if any (name == x for x in 'alice', 'bob') // pythonic any
+
+if ('alice', 'bob').any(? == name) // using partials
+
+if ('alice', 'bob').any(x => x == name) // using lambda

@@ -1,0 +1,26 @@
+print 'Enter a number'
+
+num = read
+
+// Error propagation? Do I assign errors, or use rust's option
+
+n, err = int num // Golang 
+n = int num // python- can return None for error
+n = int num unwrap // rust option unwrap
+
+
+while int n == None // While loop?
+    print 'Enter a number'
+    num = read
+
+for int n == None // Golang?
+
+
+// direct
+print (sum 1...n)
+
+// piped
+1...n | sum | print
+
+// piped like elixir?
+1...n |> sum |> print
