@@ -3,13 +3,6 @@
 version = 3
 
 [[package]]
-name = "Hatchet"
-version = "0.1.0"
-dependencies = [
- "colored",
-]
-
-[[package]]
 name = "atty"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -29,6 +22,13 @@ dependencies = [
  "atty",
  "lazy_static",
  "winapi",
+]
+
+[[package]]
+name = "hatchet"
+version = "0.1.0"
+dependencies = [
+ "colored",
 ]
 
 [[package]]

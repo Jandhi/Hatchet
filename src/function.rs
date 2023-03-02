@@ -16,8 +16,8 @@ pub enum FunctionType {
 impl Clone for FunctionType {
     fn clone(&self) -> Self {
         match self {
-            Self::BuiltIn(arg0) => Self::BuiltIn(arg0.clone()),
-            Self::Procedure(arg0) => todo!("Procedures can't be cloned")
+            Self::BuiltIn(func) => Self::BuiltIn(func.clone()),
+            Self::Procedure(expressions) => todo!("Procedures can't be cloned")
         }
     }
 }

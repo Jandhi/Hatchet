@@ -1,7 +1,11 @@
-use crate::{function::{Function, evaluate_function, Procedure}, value::Value, state::State};
-use std::collections::HashMap;
+use crate::{function::{evaluate_function, Procedure}, value::Value, state::State, parsing::{tokenizer::ParserPosition}};
 
-pub enum Expression {
+pub struct Expression {
+    pub position : ParserPosition,
+    pub expr_type : ExpressionType
+}
+
+pub enum ExpressionType {
     Reference(String),
     Value(Value),
     FunctionCall(Box<Expression>, Vec<Expression>),
@@ -9,28 +13,26 @@ pub enum Expression {
 }
 
 pub fn evaluate(expr : &Expression, state : &mut State) -> Value {
-    match expr {
-        Expression::FunctionCall(func, args) => {
-            let callee = &evaluate(func, state);
-            evaluate_function_call(callee, args, state)
+    match &expr.expr_type {
+        ExpressionType::FunctionCall(func, args) => {
+            let callee = &evaluate(&func, state);
+            evaluate_function_call(callee, &args, state)
         }
-        Expression::Procedure(proc) => {
+        ExpressionType::Procedure(proc) => {
             let mut ret_val = Value::None;
 
             for sub_expr in proc {
-                ret_val = evaluate(sub_expr, state)
+                ret_val = evaluate(&sub_expr, state)
             }
 
             ret_val
         }
-        Expression::Reference(name) => {
-            evaluate_reference(name, state)
+        ExpressionType::Reference(name) => {
+            evaluate_reference(&name, state)
         }
-        Expression::Value(value) => {
+        ExpressionType::Value(value) => {
             return value.clone();
         }
-
-        _ => todo!("Need to evaluate this expression: ")
     }
 }
 
@@ -42,7 +44,7 @@ pub fn evaluate_function_call(callee : &Value, args : &Vec<Expression>, state : 
         }
         
         _ => {
-            todo!("ERROR")
+            todo!("Callable error")
         }
     }
 }

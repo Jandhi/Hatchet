@@ -10,7 +10,8 @@ pub struct TranslationError {
 
 #[derive(Debug)]
 pub enum ErrorType {
-    UnexpectedToken(TokenType)
+    UnexpectedToken(TokenType),
+    MissingClosingParentheses,
 }
 
 
@@ -20,6 +21,9 @@ pub fn print_translation_error(error : TranslationError) {
     match error.err_type {
         ErrorType::UnexpectedToken(token_type) => {
             println!("Unexpected token type {:?}", token_type)
+        },
+        ErrorType::MissingClosingParentheses => {
+            println!("Missing closing parentheses")
         }
     }
 }

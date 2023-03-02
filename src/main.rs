@@ -8,6 +8,7 @@ mod parsing {
 mod stdlib {
     pub mod load;
     pub mod print;
+    pub mod operators;
 }
 mod translation {
     pub mod translate;
@@ -18,17 +19,18 @@ mod value;
 mod state;
 
 use std::fs;
+use colored::Colorize;
 use expression::evaluate;
 use parsing::parsing_error::print_parsing_error;
 use state::State;
 use stdlib::load::load_stdlib;
-use translation::translate::translate;
+use translation::{translate::translate, translation_error::print_translation_error};
 
 use crate::parsing::tokenizer::tokenize;
 
 fn main() {
 
-    let contents = fs::read_to_string("hatchet/simple/1_hello_world.hat")
+    let contents = fs::read_to_string("hatchet/tests/6_no_bedmas.hat")
         .expect("Should have been able to read the file");
 
     let parse_result = tokenize(contents);
@@ -40,12 +42,23 @@ fn main() {
 
     let mut tokens = parse_result.unwrap();
 
-    let expr = translate(&mut tokens).unwrap();
+    println!("{}", "TOKENS:".blue());
+    for token in tokens.iter() {
+        println!("{:?}", token.token_type);
+    }
+    println!("{}", "--------".blue());
+    println!("{}", "OUTPUT:".blue());
 
-    let mut state = State{
-        scopes: vec![load_stdlib()]
-    };
+    let translate_result = translate(&mut tokens);
 
-    evaluate(&expr, &mut state);
-
+    match translate_result {
+        Ok(expr) => {
+            let mut state = State{
+                scopes: vec![load_stdlib()]
+            };
+        
+            evaluate(&expr, &mut state);
+        },
+        Err(err) => print_translation_error(err),
+    }
 }

@@ -1,5 +1,5 @@
-use crate::parsing::token::Token;
-use super::{parsing_error::{ParsingError, ErrorType}, token::TokenType::{StringLiteral, Identifier}};
+use crate::{parsing::token::Token, value::IntegerVal};
+use super::{parsing_error::{ParsingError, ErrorType}, token::TokenType::{StringLiteral, Identifier, self}};
 
 #[derive(Debug, Clone, Copy)]
 pub struct ParserPosition {
@@ -7,52 +7,125 @@ pub struct ParserPosition {
     pub column : u16
 }
 
+pub struct Parser {
+    pub in_quotes : bool,
+    pub tokens : Vec<Token>,
+    pub buffer : String,
+    pub expected_type : ExpectedType,
+    pub position : ParserPosition,
+}
+
+pub enum ExpectedType {
+    Identifier,
+    Integer,
+    StringLiteral,
+}
+
+impl Parser {
+    fn increment_col(&mut self) {
+        self.position.column += 1;
+    }
+
+    fn send_buffer(&mut self) {
+        if self.buffer.len() == 0 {
+            return;
+        }
+
+        self.tokens.push(Token { 
+            position: self.position.clone(),
+            token_type: match self.expected_type {
+                ExpectedType::Identifier => TokenType::Identifier(self.buffer.clone()),
+                ExpectedType::Integer => TokenType::IntegerLiteral(self.buffer.clone().parse().unwrap()),
+                ExpectedType::StringLiteral => TokenType::StringLiteral(self.buffer.clone())
+            }
+        });
+
+        self.buffer.clear();
+        self.expected_type = ExpectedType::Identifier;
+    }
+}
 
 pub fn tokenize(input : String) -> Result<Vec<Token>, ParsingError> {
-    let mut in_quotes = false;
-    let mut tokens = vec![];
-    let mut buffer = String::from("");
-    let mut position = ParserPosition{ line: 0, column: 0 };
+    let mut parser = Parser {
+        in_quotes: false,
+        tokens: vec![],
+        buffer: String::new(),
+        position: ParserPosition { line: 0, column: 0 },
+        expected_type: ExpectedType::Identifier,
+    };
 
     for char in input.chars() {
-        position.column += 1; // increment position
+        parser.increment_col();
 
         match char {
             char if char.is_ascii_alphabetic() => {
-                buffer.push(char)
+                parser.buffer.push(char)
+            }
+
+            '0' ..= '9' => {
+                if parser.buffer.is_empty() {
+                    parser.expected_type = ExpectedType::Integer;
+                }
+
+                parser.buffer.push(char);
             }
 
             ' ' => {
-                if in_quotes {
-                    buffer.push(' ')
-                } else if buffer.len() > 0 {
-                    tokens.push(Token { position, token_type: Identifier(buffer.clone()) });
-                    buffer.clear();
+                if parser.in_quotes {
+                    parser.buffer.push(' ')
+                } else if parser.buffer.len() > 0 {
+                    parser.send_buffer();
                 }
             }
 
             '\'' => {
-                if in_quotes {
-                    // ends string
-                    tokens.push(Token { position, token_type: StringLiteral(buffer.clone()) });
-                    buffer.clear();
-                    in_quotes = false;
+                if parser.in_quotes {
+                    parser.send_buffer();
+                    parser.in_quotes = false;
                 } else {
                     // quotes should not start in the middle of words
-                    if buffer.len() > 0 {
+                    if parser.buffer.len() > 0 {
                         return Err(ParsingError { 
-                            position,
+                            position: parser.position,
                             err_type: ErrorType::MisplacedQuote 
                         });
                     }
 
-                    in_quotes = true;
+                    parser.in_quotes = true;
+                    parser.expected_type = ExpectedType::StringLiteral;
                 }
+            }
+
+            '(' => {
+                parser.send_buffer();
+                parser.tokens.push(Token{
+                    position: parser.position,
+                    token_type: TokenType::OpenParentheses
+                })
+            },
+
+            ')' => {
+                parser.send_buffer();
+                parser.tokens.push(Token{
+                    position: parser.position,
+                    token_type: TokenType::CloseParentheses
+                })
+            },
+
+            '+' | '-' | '*' | '/' => {
+                parser.send_buffer();
+                let mut operator_name = String::new();
+                operator_name.push(char);
+
+                parser.tokens.push(Token{
+                    position: parser.position,
+                    token_type: TokenType::Operator(operator_name)
+                })
             }
 
             _ => {
                 return  Err(ParsingError {
-                    position,
+                    position: parser.position,
                     err_type: ErrorType::UnexpectedCharacter(char)
                 });
             }
@@ -60,16 +133,14 @@ pub fn tokenize(input : String) -> Result<Vec<Token>, ParsingError> {
     };
 
     // Cleanup
-    if in_quotes {
+    if parser.in_quotes {
         return Err(ParsingError {
-            position,
+            position: parser.position,
             err_type: ErrorType::MissingClosingQuote
         })
     }
 
-    if buffer.len() > 0 {
-        tokens.push(Token { position, token_type: Identifier(buffer.clone()) });
-    }
+    parser.send_buffer();
 
-    Ok(tokens)
+    Ok(parser.tokens)
 }
