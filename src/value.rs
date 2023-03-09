@@ -6,6 +6,7 @@ use crate::function::Function;
 pub enum Value {
     String(StringVal),
     Integer(IntegerVal),
+    Boolean(bool),
     Function(Function),
     None,
 }
@@ -15,6 +16,10 @@ impl Display for Value {
         match self {
             Value::String(val) => write!(f, "{}", val),
             Value::Integer(val) => write!(f, "{}", val),
+            Value::Boolean(val) => write!(f, "{}", match val {
+                true => "true",
+                false => "false",
+            }),
             Value::Function(func) => write!(f, "<some-function>"),
             Value::None => write!(f, "None"),
         }

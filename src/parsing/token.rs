@@ -12,9 +12,15 @@ pub struct Token {
 #[derive(Debug)]
 pub enum TokenType {
     Identifier(String),
+    Operator(String), // Special type of identifier that calls a function in between
+    
     StringLiteral(String),
     IntegerLiteral(IntegerVal),
+    Boolean(bool),
+    
     OpenParentheses,
     CloseParentheses,
-    Operator(String),
+    
+    
+    NewLine,
 }

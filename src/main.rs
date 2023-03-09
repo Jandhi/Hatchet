@@ -7,8 +7,9 @@ mod parsing {
 }
 mod stdlib {
     pub mod load;
-    pub mod print;
-    pub mod operators;
+    pub mod strings;
+    pub mod math;
+    pub mod logic;
 }
 mod translation {
     pub mod translate;
@@ -29,11 +30,17 @@ use translation::{translate::translate, translation_error::print_translation_err
 use crate::parsing::tokenizer::tokenize;
 
 fn main() {
+    let mut state = State{
+        scopes: vec![]
+    };
 
-    let contents = fs::read_to_string("hatchet/tests/6_no_bedmas.hat")
+    load_stdlib(&mut state);
+
+    let contents = fs::read_to_string("hatchet/tests/9_and.hat")
         .expect("Should have been able to read the file");
 
-    let parse_result = tokenize(contents);
+
+    let parse_result = tokenize(contents, &state);
 
     if parse_result.is_err() {
         print_parsing_error(parse_result.unwrap_err());
@@ -53,10 +60,6 @@ fn main() {
 
     match translate_result {
         Ok(expr) => {
-            let mut state = State{
-                scopes: vec![load_stdlib()]
-            };
-        
             evaluate(&expr, &mut state);
         },
         Err(err) => print_translation_error(err),

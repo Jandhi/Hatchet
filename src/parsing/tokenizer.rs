@@ -1,5 +1,7 @@
-use crate::{parsing::token::Token, value::IntegerVal};
-use super::{parsing_error::{ParsingError, ErrorType}, token::TokenType::{StringLiteral, Identifier, self}};
+use std::vec;
+
+use crate::{parsing::token::Token, state::State};
+use super::{parsing_error::{ParsingError, ErrorType}, token::TokenType};
 
 #[derive(Debug, Clone, Copy)]
 pub struct ParserPosition {
@@ -7,21 +9,23 @@ pub struct ParserPosition {
     pub column : u16
 }
 
-pub struct Parser {
+pub struct Parser<'a> {
     pub in_quotes : bool,
     pub tokens : Vec<Token>,
     pub buffer : String,
     pub expected_type : ExpectedType,
     pub position : ParserPosition,
+    pub state : &'a State,
 }
 
 pub enum ExpectedType {
     Identifier,
     Integer,
     StringLiteral,
+    Operator,
 }
 
-impl Parser {
+impl<'a> Parser<'a> {
     fn increment_col(&mut self) {
         self.position.column += 1;
     }
@@ -31,27 +35,47 @@ impl Parser {
             return;
         }
 
+        if self.state.contains_operator(&self.buffer) {
+            self.expected_type = ExpectedType::Operator;
+        }
+        
         self.tokens.push(Token { 
             position: self.position.clone(),
             token_type: match self.expected_type {
-                ExpectedType::Identifier => TokenType::Identifier(self.buffer.clone()),
-                ExpectedType::Integer => TokenType::IntegerLiteral(self.buffer.clone().parse().unwrap()),
-                ExpectedType::StringLiteral => TokenType::StringLiteral(self.buffer.clone())
+                ExpectedType::Identifier => {
+                    if self.buffer == "true" || self.buffer == "false" { // booleans
+                        TokenType::Boolean(self.buffer == "true")
+                    } else {
+                        TokenType::Identifier(self.buffer.clone())
+                    }
+                },
+                ExpectedType::Integer => TokenType::IntegerLiteral(self.buffer.clone().parse().expect("Couldn't parse integer!")),
+                ExpectedType::StringLiteral => TokenType::StringLiteral(self.buffer.clone()),
+                ExpectedType::Operator => TokenType::Operator(self.buffer.clone())
             }
         });
+
+        if let ExpectedType::Operator = self.expected_type {
+            let op = self.tokens.pop().expect("Should have pushed operator token by now");
+            let arg1 = self.tokens.pop().expect("There should be an argument before this");
+            // todo add parsing error
+            self.tokens.push(op);
+            self.tokens.push(arg1);
+        }
 
         self.buffer.clear();
         self.expected_type = ExpectedType::Identifier;
     }
 }
 
-pub fn tokenize(input : String) -> Result<Vec<Token>, ParsingError> {
+pub fn tokenize<'a>(input : String, state : &'a State) -> Result<Vec<Token>, ParsingError> {
     let mut parser = Parser {
         in_quotes: false,
         tokens: vec![],
         buffer: String::new(),
         position: ParserPosition { line: 0, column: 0 },
         expected_type: ExpectedType::Identifier,
+        state: state,
     };
 
     for char in input.chars() {
@@ -76,6 +100,18 @@ pub fn tokenize(input : String) -> Result<Vec<Token>, ParsingError> {
                 } else if parser.buffer.len() > 0 {
                     parser.send_buffer();
                 }
+            }
+
+            '\r' => {
+                // Ignore
+            }
+
+            '\n' => {
+                parser.send_buffer();
+                parser.tokens.push(Token{
+                    position: parser.position,
+                    token_type: TokenType::NewLine,
+                });
             }
 
             '\'' => {
@@ -111,17 +147,6 @@ pub fn tokenize(input : String) -> Result<Vec<Token>, ParsingError> {
                     token_type: TokenType::CloseParentheses
                 })
             },
-
-            '+' | '-' | '*' | '/' => {
-                parser.send_buffer();
-                let mut operator_name = String::new();
-                operator_name.push(char);
-
-                parser.tokens.push(Token{
-                    position: parser.position,
-                    token_type: TokenType::Operator(operator_name)
-                })
-            }
 
             _ => {
                 return  Err(ParsingError {

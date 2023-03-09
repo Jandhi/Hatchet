@@ -37,7 +37,7 @@ pub fn evaluate_function(func : &Function, args : Args, state : &mut State) -> V
     match &func.func_type {
         FunctionType::BuiltIn(function) => return function(args),
         FunctionType::Procedure(proc) => {
-            state.scopes.push(Scope { identifiers: HashMap::new(), arguments: args });
+            state.scopes.push(Scope { name : String::from("Function"), identifiers: HashMap::new(), operators: HashMap::new(), arguments: args });
             let mut val = Value::None;
 
             for expr in proc {
@@ -45,7 +45,7 @@ pub fn evaluate_function(func : &Function, args : Args, state : &mut State) -> V
             }
 
             state.scopes.pop();
-            return Value::None;
+            return val;
         }
     }
 }

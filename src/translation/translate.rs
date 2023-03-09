@@ -1,8 +1,8 @@
 use std::vec;
 
-use crate::{parsing::{token::{Token, TokenType::{Identifier, StringLiteral, OpenParentheses, Operator, IntegerLiteral}}, tokenizer::ParserPosition}, expression::{Expression, ExpressionType}, value::Value};
+use crate::{parsing::{token::{Token, TokenType::{Identifier, StringLiteral, OpenParentheses, Operator, IntegerLiteral, self}}, tokenizer::ParserPosition}, expression::{Expression, ExpressionType}, value::Value};
 
-use super::translation_error::TranslationError;
+use super::translation_error::{TranslationError, ErrorType};
 
 pub fn translate(tokens : &mut Vec<Token>) -> Result<Expression, TranslationError> {
     let mut expressions = vec![];
@@ -51,6 +51,8 @@ pub fn translate_sequence(tokens : &mut Vec<Token>) -> Result<Expression, Transl
                 }
             }
 
+        } else if let TokenType::NewLine = peek.token_type {
+            break;
         } else {
             tokens.insert(0, peek);
 
@@ -111,11 +113,21 @@ fn next_expr(tokens : &mut Vec<Token>) -> Result<Expression, TranslationError> {
             })
         }
 
+        TokenType::Boolean(value) => {
+            return Ok(Expression {
+                position: token.position, 
+                expr_type: ExpressionType::Value(Value::Boolean(value)), 
+            });
+        }
+
         OpenParentheses => {
             return translate_parentheses(token.position, tokens);
         }
 
-        _ => todo!("Can't process {:?}", token)
+        _ => return Err(TranslationError {
+            position: token.position,
+            err_type: ErrorType::UnexpectedToken(token.token_type)
+        })
     }
 }
 
@@ -133,7 +145,7 @@ fn translate_parentheses(pos : ParserPosition, tokens : &mut Vec<Token>) -> Resu
         if tokens.len() == 0 {
             return Err(TranslationError {
                 position: pos,
-                err_type: super::translation_error::ErrorType::MissingClosingParentheses,
+                err_type: ErrorType::MissingClosingParentheses,
             });
         }
     }

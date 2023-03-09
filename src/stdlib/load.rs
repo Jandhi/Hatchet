@@ -1,18 +1,11 @@
 use std::collections::HashMap;
 
-use crate::scope::Scope;
+use crate::{scope::Scope, state::State};
 
-use super::{print::make_print, operators::{make_add, make_sub, make_div, make_mult}};
+use super::{strings, math, logic};
 
-pub fn load_stdlib() -> Scope {
-    Scope {
-        identifiers: HashMap::from([
-            (String::from("print"), make_print()),
-            (String::from("+"), make_add()),
-            (String::from("-"), make_sub()),
-            (String::from("*"), make_mult()),
-            (String::from("/"), make_div()),
-        ]),
-        arguments: vec![],
-    }
+pub fn load_stdlib(state : &mut State) {
+    math::load(state);
+    strings::load(state);
+    logic::load(state);
 }

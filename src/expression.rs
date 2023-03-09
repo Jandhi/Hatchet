@@ -44,17 +44,21 @@ pub fn evaluate_function_call(callee : &Value, args : &Vec<Expression>, state : 
         }
         
         _ => {
-            todo!("Callable error")
+            todo!("Error, callee is {}", callee)
         }
     }
 }
 
 pub fn evaluate_reference(name : &String, state : &mut State) -> Value {
     for scope in  &state.scopes {
+        if scope.operators.contains_key(name) {
+            return scope.operators[name].clone();
+        }
+
         if scope.identifiers.contains_key(name) {
             return scope.identifiers[name].clone();
         }
     }
 
-    Value::None
+    panic!("Unknown reference: \"{}\"", name);
 }
