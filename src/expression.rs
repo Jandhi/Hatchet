@@ -1,3 +1,6 @@
+use core::panic;
+use std::thread::panicking;
+
 use crate::{function::{evaluate_function, Procedure}, value::Value, state::State, parsing::{tokenizer::ParserPosition}};
 
 pub struct Expression {
@@ -9,6 +12,7 @@ pub enum ExpressionType {
     Reference(String),
     Value(Value),
     FunctionCall(Box<Expression>, Vec<Expression>),
+    Pipe(Box<Expression>, Box<Expression>),
     Procedure(Procedure),
 }
 
@@ -33,6 +37,32 @@ pub fn evaluate(expr : &Expression, state : &mut State) -> Value {
         ExpressionType::Value(value) => {
             return value.clone();
         }
+        ExpressionType::Pipe(expr1, expr2) => {
+            let arg0 = evaluate(expr1, state);
+
+            if let ExpressionType::FunctionCall(callee, args) = &expr2.expr_type {
+                let mut values : Vec<Value> = args.into_iter().map(|exp| evaluate(exp, state)).collect();
+                values.insert(0, arg0);
+
+                if let Value::Function(function) = evaluate(callee, state) {
+                    return evaluate_function(&function, values, state);
+                }
+
+                panic!("Cannot call expression that isn't a function! at {}", callee.position);
+                
+            } else {
+                let value = evaluate(expr2, state);
+
+                match value {
+                    Value::Function(func) => {
+                        return evaluate_function(&func, vec![arg0], state)
+                    },  
+                    _ => {
+                        panic!("Second part of pipe operator must be function or function call, not {}", value);
+                    }
+                }
+            }
+        },
     }
 }
 

@@ -21,6 +21,7 @@ pub enum TokenType {
     OpenParentheses,
     CloseParentheses,
     
+    Pipe,
     
     NewLine,
 }

@@ -4,6 +4,7 @@ use crate::{value::Value, expression::{Expression, evaluate}, state::State, scop
 
 #[derive(Clone)]
 pub struct Function {
+    pub name : String,
     pub func_type : FunctionType,
     pub param_amt : ParameterAmount
 }

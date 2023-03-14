@@ -14,6 +14,7 @@ fn make_and() -> Value {
     }
 
     return Value::Function(Function {
+        name: String::from("and"), 
         func_type: BuiltIn(print),
         param_amt: Unlimited  
     })
