@@ -59,10 +59,10 @@ fn make_sub() -> Value {
                     Value::Integer(val1) => {
                         match args[1] {
                             Value::Integer(val2) => Value::Integer(val1 - val2),
-                            _ => panic!("You cannot add {} and {}", args[0], args[1])
+                            _ => panic!("You cannot sub {} and {}", args[0], args[1])
                         }
                     }
-                    _ => panic!("You cannot add {} and {}", args[0], args[1])
+                    _ => panic!("You cannot sub {} and {}", args[0], args[1])
                 }
             }
         }), 

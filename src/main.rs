@@ -36,7 +36,7 @@ fn main() {
 
     load_stdlib(&mut state);
 
-    let contents = fs::read_to_string("hatchet/tests/9_and.hat")
+    let contents = fs::read_to_string("hatchet/tests/6_no_bedmas.hat")
         .expect("Should have been able to read the file");
 
 

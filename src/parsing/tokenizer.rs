@@ -55,13 +55,13 @@ impl<'a> Parser<'a> {
             }
         });
 
-        if let ExpectedType::Operator = self.expected_type {
+        /*if let ExpectedType::Operator = self.expected_type {
             let op = self.tokens.pop().expect("Should have pushed operator token by now");
             let arg1 = self.tokens.pop().expect("There should be an argument before this");
             // todo add parsing error
             self.tokens.push(op);
             self.tokens.push(arg1);
-        }
+        }*/
 
         self.buffer.clear();
         self.expected_type = ExpectedType::Identifier;
@@ -87,10 +87,12 @@ pub fn tokenize<'a>(input : String, state : &'a State) -> Result<Vec<Token>, Par
             }
 
             '0' ..= '9' => {
-                if parser.buffer.is_empty() {
+
+                if parser.buffer.is_empty()
+                || parser.buffer.len() == 1 && parser.buffer.starts_with("-") {    
                     parser.expected_type = ExpectedType::Integer;
                 }
-
+ 
                 parser.buffer.push(char);
             }
 
@@ -149,10 +151,7 @@ pub fn tokenize<'a>(input : String, state : &'a State) -> Result<Vec<Token>, Par
             },
 
             _ => {
-                return  Err(ParsingError {
-                    position: parser.position,
-                    err_type: ErrorType::UnexpectedCharacter(char)
-                });
+                parser.buffer.push(char);
             }
         }
     };
