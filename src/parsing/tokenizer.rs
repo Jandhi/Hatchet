@@ -55,14 +55,6 @@ impl<'a> Parser<'a> {
             }
         });
 
-        /*if let ExpectedType::Operator = self.expected_type {
-            let op = self.tokens.pop().expect("Should have pushed operator token by now");
-            let arg1 = self.tokens.pop().expect("There should be an argument before this");
-            // todo add parsing error
-            self.tokens.push(op);
-            self.tokens.push(arg1);
-        }*/
-
         self.buffer.clear();
         self.expected_type = ExpectedType::Identifier;
     }
