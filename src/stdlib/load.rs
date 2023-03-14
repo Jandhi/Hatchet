@@ -1,6 +1,4 @@
-use std::collections::HashMap;
-
-use crate::{scope::Scope, state::State};
+use crate::{state::State};
 
 use super::{strings, math, logic};
 
