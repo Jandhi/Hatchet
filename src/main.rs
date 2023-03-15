@@ -19,7 +19,7 @@ mod scope;
 mod value;
 mod state;
 
-use std::fs;
+use std::{fs, fmt::format};
 use colored::Colorize;
 use expression::evaluate;
 use parsing::parsing_error::print_parsing_error;
@@ -30,13 +30,33 @@ use translation::{translate::translate, translation_error::print_translation_err
 use crate::parsing::tokenizer::tokenize;
 
 fn main() {
+    for name in vec![
+        "1_hello",
+        "2_brackets",
+        "3_operators",
+        "4_hey",
+        "5_ints",
+        "6_no_bedmas",
+        "7_lines",
+        "8_bools",
+        "9_and",
+    ] {
+        run_file(format!("hatchet/tests/{}.hat", name));
+        println!();
+    }
+}
+
+fn run_file(name : String) {
+    let title = format!("RUNNING {}", name).red();
+    println!("{}", title);
+
     let mut state = State{
         scopes: vec![]
     };
 
     load_stdlib(&mut state);
 
-    let contents = fs::read_to_string("hatchet/tests/9_and.hat")
+    let contents = fs::read_to_string(name)
         .expect("Should have been able to read the file");
 
 

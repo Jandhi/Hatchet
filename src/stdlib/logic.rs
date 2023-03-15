@@ -19,11 +19,29 @@ fn make_and() -> Value {
     })
 }
 
+fn make_or() -> Value {
+    fn print(args : Args) -> Value {
+        if let Value::Boolean(val1) = args[0] {
+            if let Value::Boolean(val2) = args[1] {
+                return Value::Boolean(val1 || val2);
+            }
+        }
+
+        panic!("You cannot use or on {} and {}", args[0], args[1]);
+    }
+
+    return Value::Function(Function {
+        func_type: BuiltIn(print),
+        param_amt: Unlimited  
+    })
+}
+
 pub fn load(state : &mut State) {
     state.scopes.push(crate::scope::Scope { 
         name: String::from("std_strings"), 
         operators: HashMap::from([
             (String::from("and"), make_and()),
+            (String::from("or"), make_or()),
         ]),
         identifiers: HashMap::from([
            
