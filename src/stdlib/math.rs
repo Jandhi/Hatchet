@@ -20,6 +20,7 @@ pub fn load(state : &mut State) {
 
 fn make_add() -> Value {
     return Value::Function(Function {
+        name: String::from("add"),
         func_type: BuiltIn(|args| {
             match &args[0] {
                 Value::Integer(val1) => {
@@ -48,7 +49,9 @@ fn make_add() -> Value {
 
 fn make_sub() -> Value {
     return Value::Function(
-        Function { func_type: BuiltIn(|args| {
+        Function {
+            name: String::from("sub"), 
+            func_type: BuiltIn(|args| {
             if args.len() == 1 {
                 match &args[0] {
                     Value::Integer(val) => return Value::Integer(-1 * val,),
@@ -59,10 +62,10 @@ fn make_sub() -> Value {
                     Value::Integer(val1) => {
                         match args[1] {
                             Value::Integer(val2) => Value::Integer(val1 - val2),
-                            _ => panic!("You cannot add {} and {}", args[0], args[1])
+                            _ => panic!("You cannot sub {} and {}", args[0], args[1])
                         }
                     }
-                    _ => panic!("You cannot add {} and {}", args[0], args[1])
+                    _ => panic!("You cannot sub {} and {}", args[0], args[1])
                 }
             }
         }), 
@@ -72,6 +75,7 @@ fn make_sub() -> Value {
 
 fn make_mult() -> Value {
     return Value::Function(Function {
+        name: String::from("mult"), 
         func_type: BuiltIn(|args| {
             match &args[0] {
                 Value::Integer(val1) => {
@@ -89,6 +93,7 @@ fn make_mult() -> Value {
 
 fn make_div() -> Value {
     return Value::Function(Function {
+        name: String::from("div"), 
         func_type: BuiltIn(|args| {
             match &args[0] {
                 Value::Integer(val1) => {

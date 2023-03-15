@@ -1,4 +1,4 @@
-use std::vec;
+use std::{vec, fmt::Display};
 
 use crate::{parsing::token::Token, state::State};
 use super::{parsing_error::{ParsingError, ErrorType}, token::TokenType};
@@ -7,6 +7,12 @@ use super::{parsing_error::{ParsingError, ErrorType}, token::TokenType};
 pub struct ParserPosition {
     pub line : u16,
     pub column : u16
+}
+
+impl Display for ParserPosition {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "line {}, col {}", self.line, self.column)
+    }
 }
 
 pub struct Parser<'a> {
@@ -79,10 +85,12 @@ pub fn tokenize<'a>(input : String, state : &'a State) -> Result<Vec<Token>, Par
             }
 
             '0' ..= '9' => {
-                if parser.buffer.is_empty() {
+
+                if parser.buffer.is_empty()
+                || parser.buffer.len() == 1 && parser.buffer.starts_with("-") {    
                     parser.expected_type = ExpectedType::Integer;
                 }
-
+ 
                 parser.buffer.push(char);
             }
 
@@ -104,6 +112,14 @@ pub fn tokenize<'a>(input : String, state : &'a State) -> Result<Vec<Token>, Par
                     position: parser.position,
                     token_type: TokenType::NewLine,
                 });
+            }
+
+            '|' => {
+                parser.send_buffer();
+                parser.tokens.push(Token{
+                    position: parser.position,
+                    token_type: TokenType::Pipe,
+                })
             }
 
             '\'' => {
@@ -152,10 +168,7 @@ pub fn tokenize<'a>(input : String, state : &'a State) -> Result<Vec<Token>, Par
             }
 
             _ => {
-                return  Err(ParsingError {
-                    position: parser.position,
-                    err_type: ErrorType::UnexpectedCharacter(char)
-                });
+                parser.buffer.push(char);
             }
         }
     };
