@@ -30,6 +30,11 @@ use translation::{translate::translate, translation_error::print_translation_err
 use crate::parsing::tokenizer::tokenize;
 
 fn main() {
+    run_all();
+    // run_file(String::from("hatchet/tests/12_pipe.hat"));
+}
+
+fn run_all() {
     for name in vec![
         "1_hello",
         "2_brackets",
@@ -40,6 +45,9 @@ fn main() {
         "7_lines",
         "8_bools",
         "9_and",
+        "10_lines2",
+        "11_or",
+        "12_pipe",
     ] {
         run_file(format!("hatchet/tests/{}.hat", name));
         println!();
@@ -80,6 +88,7 @@ fn run_file(name : String) {
 
     match translate_result {
         Ok(expr) => {
+            println!("{}", expr.expr_type.to_string());
             evaluate(&expr, &mut state);
         },
         Err(err) => print_translation_error(err),

@@ -1,5 +1,7 @@
 use std::vec;
 
+use colored::Colorize;
+
 use crate::{parsing::{token::{Token, TokenType::{Identifier, StringLiteral, OpenParentheses, Operator, IntegerLiteral, self}}, tokenizer::ParserPosition}, expression::{Expression, ExpressionType}, value::Value};
 
 use super::translation_error::{TranslationError, ErrorType};
@@ -26,6 +28,10 @@ pub fn translate_sequence(tokens : &mut Vec<Token>) -> Result<Expression, Transl
     let mut expressions : Vec<Expression> = vec![];
 
     loop {
+        if tokens.len() == 0 {
+            break;
+        }
+
         let peek = tokens.remove(0);
 
         if let Operator(name) = peek.token_type {
@@ -45,14 +51,65 @@ pub fn translate_sequence(tokens : &mut Vec<Token>) -> Result<Expression, Transl
 
                         expressions.push(Expression { 
                             position: a.position, 
-                            expr_type: ExpressionType::FunctionCall(callee, vec![a, b]) })
+                            expr_type: ExpressionType::FunctionCall(callee, vec![a, b]) 
+                        })
                     },
                     Err(err) => return Err(err)
                 }
             }
 
         } else if let TokenType::NewLine = peek.token_type {
-            break;
+            break; // end read loop
+        } else if let TokenType::Pipe = peek.token_type {
+            let left = pack_up(&mut expressions);
+            let mut right_tokens = vec![];
+            let mut return_expr = false; 
+
+            loop {
+                if tokens.len() == 0 {
+                    return_expr = true;
+                    break;
+                }
+
+                let next = tokens.remove(0);
+
+                match next.token_type {
+                    TokenType::Pipe => {
+                        tokens.push(next);
+                        break;
+                    }
+                    
+                    TokenType::NewLine => {
+                        return_expr = true;
+                        break;
+                    }
+
+                    _ => {
+                        right_tokens.push(next);
+                    }
+                }
+            }
+
+            println!("{} {}", "RTOKENS:".red(), right_tokens.len());
+            for token in right_tokens.iter() {
+                println!("{:?}", token.token_type);
+            }
+
+            match translate_sequence(&mut right_tokens) {
+                Ok(right) => {
+                    let expr = Expression { 
+                        position: peek.position, 
+                        expr_type: ExpressionType::Pipe(Box::from(left), Box::from(right)) 
+                    };
+
+                    if return_expr {
+                        return Ok(expr);
+                    } else {
+                        expressions.push(expr);
+                    }
+                },
+                Err(_) => todo!(),
+            }
         } else {
             tokens.insert(0, peek);
 
@@ -69,15 +126,24 @@ pub fn translate_sequence(tokens : &mut Vec<Token>) -> Result<Expression, Transl
         }
     }
 
+    return Ok(pack_up(&mut expressions))
+}
+
+fn pack_up(expressions : &mut Vec<Expression>) -> Expression {
     if expressions.len() == 1 {
-        return Ok(expressions.pop().unwrap());
+        return expressions.pop().unwrap();
     } else {
         let callee = expressions.remove(0);
+        let mut args = vec![];
 
-        return Ok(Expression{
-            position: expressions[0].position,
-            expr_type: ExpressionType::FunctionCall(Box::from(callee), expressions)
-        });
+        while let Some(expr) = expressions.pop()  {
+            args.push(expr);
+        }
+
+        return Expression{
+            position: callee.position,
+            expr_type: ExpressionType::FunctionCall(Box::from(callee), args)
+        }
     }
 }
 

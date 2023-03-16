@@ -12,6 +12,7 @@ pub struct TranslationError {
 pub enum ErrorType {
     UnexpectedToken(TokenType),
     MissingClosingParentheses,
+    EmptyPipe,
 }
 
 
@@ -21,9 +22,12 @@ pub fn print_translation_error(error : TranslationError) {
     match error.err_type {
         ErrorType::UnexpectedToken(token_type) => {
             println!("Unexpected token type {:?}", token_type)
-        },
+        }
         ErrorType::MissingClosingParentheses => {
             println!("Missing closing parentheses")
+        }
+        ErrorType::EmptyPipe => {
+            println!("Missing second argument for pipe operator")
         }
     }
 }

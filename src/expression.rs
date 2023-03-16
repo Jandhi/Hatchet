@@ -1,5 +1,5 @@
 use core::panic;
-use std::thread::panicking;
+use std::{thread::panicking, fmt::{Display, format}};
 
 use crate::{function::{evaluate_function, Procedure}, value::Value, state::State, parsing::{tokenizer::ParserPosition}};
 
@@ -14,6 +14,34 @@ pub enum ExpressionType {
     FunctionCall(Box<Expression>, Vec<Expression>),
     Pipe(Box<Expression>, Box<Expression>),
     Procedure(Procedure),
+}
+
+impl ExpressionType {
+    pub fn to_string(&self) -> String {
+        match self {
+            ExpressionType::Reference(name) => format!("reference({})", name),
+            ExpressionType::Value(val) => format!("value({})", val.to_string()),
+            ExpressionType::FunctionCall(func, args) => {
+                let mut arg_string = String::from("");
+
+                for arg in args {
+                    arg_string = format!("{}, {}", arg_string, arg.expr_type.to_string());
+                }
+
+                format!("call({})[{}]", func.expr_type.to_string(), arg_string)
+            },
+            ExpressionType::Pipe(bx1, bx2) => format!("pipe({}, {})", bx1.expr_type.to_string(), bx2.expr_type.to_string()),
+            ExpressionType::Procedure(proc) => {
+                let mut expr_string = String::from("");
+
+                for expr in proc {
+                    expr_string = format!("{}, {}", expr_string, expr.expr_type.to_string());
+                }
+
+                format!("proc({})", expr_string)
+            }
+        }
+    }
 }
 
 pub fn evaluate(expr : &Expression, state : &mut State) -> Value {

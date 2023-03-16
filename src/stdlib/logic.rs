@@ -32,6 +32,7 @@ fn make_or() -> Value {
     }
 
     return Value::Function(Function {
+        name: String::from("or"),
         func_type: BuiltIn(print),
         param_amt: Unlimited  
     })
