@@ -8,6 +8,7 @@ pub enum Value {
     Integer(IntegerVal),
     Boolean(bool),
     Function(Function),
+    // TODO errors?
     None,
 }
 

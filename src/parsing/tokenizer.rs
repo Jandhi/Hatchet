@@ -8,6 +8,7 @@ pub struct ParserPosition {
     pub line : u16,
     pub column : u16
 }
+pub const ParserZero: ParserPosition = ParserPosition{line:0, column:0};
 
 impl Display for ParserPosition {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

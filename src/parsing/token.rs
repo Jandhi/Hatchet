@@ -9,7 +9,7 @@ pub struct Token {
     pub token_type : TokenType,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum TokenType {
     Identifier(String),
     Operator(String), // Special type of identifier that calls a function in between

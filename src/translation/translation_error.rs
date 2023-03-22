@@ -13,6 +13,7 @@ pub enum ErrorType {
     UnexpectedToken(TokenType),
     MissingClosingParentheses,
     EmptyPipe,
+    EmptyExpression,
 }
 
 
@@ -29,5 +30,8 @@ pub fn print_translation_error(error : TranslationError) {
         ErrorType::EmptyPipe => {
             println!("Missing second argument for pipe operator")
         }
+        ErrorType::EmptyExpression => {
+            println!("Expression is empty")
+        },
     }
 }

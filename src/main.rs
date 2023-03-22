@@ -19,7 +19,7 @@ mod scope;
 mod value;
 mod state;
 
-use std::{fs, fmt::format};
+use std::{fs};
 use colored::Colorize;
 use expression::evaluate;
 use parsing::parsing_error::print_parsing_error;
@@ -81,14 +81,18 @@ fn run_file(name : String) {
     for token in tokens.iter() {
         println!("{:?}", token.token_type);
     }
-    println!("{}", "--------".blue());
-    println!("{}", "OUTPUT:".blue());
+    
 
     let translate_result = translate(&mut tokens);
 
     match translate_result {
         Ok(expr) => {
+            println!("{}", "--------".blue());
+            println!("{}", "PROCEDURE:".blue());
             println!("{}", expr.expr_type.to_string());
+
+            println!("{}", "--------".blue());
+            println!("{}", "OUTPUT:".blue());
             evaluate(&expr, &mut state);
         },
         Err(err) => print_translation_error(err),
