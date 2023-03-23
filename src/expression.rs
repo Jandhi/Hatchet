@@ -19,7 +19,7 @@ pub enum ExpressionType {
 impl ExpressionType {
     pub fn to_string(&self) -> String {
         match self {
-            ExpressionType::Reference(name) => format!("reference({})", name),
+            ExpressionType::Reference(name) => format!("ref({})", name),
             ExpressionType::Value(val) => format!("value({})", val.to_string()),
             ExpressionType::FunctionCall(func, args) => {
                 let mut arg_string = String::from("");
