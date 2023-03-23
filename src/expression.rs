@@ -28,6 +28,10 @@ impl ExpressionType {
                     arg_string = format!("{}, {}", arg_string, arg.expr_type.to_string());
                 }
 
+                if arg_string.starts_with(", ") {
+                    arg_string = String::from(&arg_string[2..]);
+                }
+
                 format!("call({})[{}]", func.expr_type.to_string(), arg_string)
             },
             ExpressionType::Pipe(bx1, bx2) => format!("pipe({}, {})", bx1.expr_type.to_string(), bx2.expr_type.to_string()),
@@ -36,6 +40,10 @@ impl ExpressionType {
 
                 for expr in proc {
                     expr_string = format!("{}, {}", expr_string, expr.expr_type.to_string());
+                }
+
+                if expr_string.starts_with(", ") {
+                    expr_string = String::from(&expr_string[2..]);
                 }
 
                 format!("proc({})", expr_string)
