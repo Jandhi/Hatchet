@@ -1,6 +1,6 @@
 use std::vec;
 
-use crate::{parsing::{token::{Token, TokenType::{Identifier, StringLiteral, OpenParentheses, Operator, IntegerLiteral, self}}, tokenizer::{ParserPosition, Parser, ParserZero}}, expression::{Expression, ExpressionType}, value::Value};
+use crate::{parsing::{token::{Token, TokenType::{Identifier, StringLiteral, OpenParentheses, Operator, IntegerLiteral, self}}, tokenizer::{ParserPosition, PARSER_ZERO}}, expression::{Expression, ExpressionType}, value::{Value, ReferenceVal}};
 
 use super::translation_error::{TranslationError, ErrorType};
 
@@ -58,6 +58,20 @@ pub fn translate_sequence(tokens : &mut Vec<Token>) -> Result<Expression, Transl
 
         } else if let TokenType::NewLine = peek.token_type {
             break; // end read loop
+        } else if let TokenType::Assignment = peek.token_type {
+            let left = expressions.pop().unwrap();
+
+            if let ExpressionType::Reference(name) = left.expr_type {
+                match translate_sequence(tokens) {
+                    Ok(right) => return Ok(Expression{
+                        position: peek.position,
+                        expr_type: ExpressionType::Assignment(name, Box::from(right))
+                        }),
+                    Err(err) => return Err(err),
+                }
+            } else {
+                panic!("Whoops, expression is {}", left.expr_type.to_string());
+            }
         } else if let TokenType::Pipe = peek.token_type {
 
             let packed_left = pack_up(&mut expressions);
@@ -140,7 +154,7 @@ pub fn translate_sequence(tokens : &mut Vec<Token>) -> Result<Expression, Transl
 fn pack_up(expressions : &mut Vec<Expression>) -> Result<Expression, TranslationError> {
     
     if expressions.len() == 0 {
-        return Err(TranslationError { position: ParserZero, err_type: ErrorType::EmptyExpression });
+        return Err(TranslationError { position: PARSER_ZERO, err_type: ErrorType::EmptyExpression });
     } else if expressions.len() == 1 {
         return Ok(expressions.pop().unwrap());
     } else {

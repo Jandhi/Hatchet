@@ -6,8 +6,9 @@ use crate::function::Function;
 pub enum Value {
     String(StringVal),
     Integer(IntegerVal),
-    Boolean(bool),
+    Boolean(BoolVal),
     Function(Function),
+    Reference(ReferenceVal),
     // TODO errors?
     None,
 }
@@ -23,9 +24,12 @@ impl Display for Value {
             }),
             Value::Function(func) => write!(f, "<some-function>"),
             Value::None => write!(f, "None"),
+            Value::Reference(name) => write!(f, "ref({})", name),
         }
     }
 }
 
 pub type IntegerVal = i32;
 pub type StringVal = String;
+pub type ReferenceVal = String;
+pub type BoolVal = bool;

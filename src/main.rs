@@ -48,6 +48,7 @@ fn run_all() {
         "10_lines2",
         "11_or",
         "12_pipe",
+        "13_variables",
     ] {
         run_file(format!("hatchet/tests/{}.hat", name));
         println!();

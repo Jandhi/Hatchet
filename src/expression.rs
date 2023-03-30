@@ -1,5 +1,4 @@
 use core::panic;
-use std::{thread::panicking, fmt::{Display, format}};
 
 use crate::{function::{evaluate_function, Procedure}, value::Value, state::State, parsing::{tokenizer::ParserPosition}};
 
@@ -12,6 +11,7 @@ pub enum ExpressionType {
     Reference(String),
     Value(Value),
     FunctionCall(Box<Expression>, Vec<Expression>),
+    Assignment(String, Box<Expression>),
     Pipe(Box<Expression>, Box<Expression>),
     Procedure(Procedure),
 }
@@ -48,6 +48,9 @@ impl ExpressionType {
 
                 format!("proc({})", expr_string)
             }
+            ExpressionType::Assignment(name, expr) => {
+                format!("assign({}, {})", name, expr.expr_type.to_string())
+            },
         }
     }
 }
@@ -98,6 +101,13 @@ pub fn evaluate(expr : &Expression, state : &mut State) -> Value {
                     }
                 }
             }
+        },
+        ExpressionType::Assignment(name, expr) => {
+            let mut val = evaluate(expr, state);
+            let mut name_copy = name.clone();
+            let index = state.scopes.len() - 1;
+            state.scopes[index].identifiers.insert(name_copy, val.clone());
+            return val;
         },
     }
 }

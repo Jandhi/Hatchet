@@ -8,7 +8,7 @@ pub struct ParserPosition {
     pub line : u16,
     pub column : u16
 }
-pub const ParserZero: ParserPosition = ParserPosition{line:0, column:0};
+pub const PARSER_ZERO: ParserPosition = ParserPosition{line:0, column:0};
 
 impl Display for ParserPosition {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -157,7 +157,15 @@ pub fn tokenize<'a>(input : String, state : &'a State) -> Result<Vec<Token>, Par
                 })
             },
 
-            '+' | '-' | '*' | '/' | '|' | '=' => {
+            '=' => {
+                parser.send_buffer();
+                parser.tokens.push(Token{
+                    position: parser.position,
+                    token_type: TokenType::Assignment
+                })
+            }
+
+            '+' | '-' | '*' | '/' => {
                 if let ExpectedType::Operator = parser.expected_type {
                     // We good
                 } else {
