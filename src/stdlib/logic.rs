@@ -13,11 +13,11 @@ fn make_and() -> Value {
         panic!("You cannot use and on {} and {}", args[0], args[1]);
     }
 
-    return Value::Function(Function {
+    return Value::Function(Box::from(Function {
         name: String::from("and"), 
         func_type: BuiltIn(print),
-        param_amt: Unlimited  
-    })
+        params: vec![],
+    }))
 }
 
 fn make_or() -> Value {
@@ -31,11 +31,11 @@ fn make_or() -> Value {
         panic!("You cannot use or on {} and {}", args[0], args[1]);
     }
 
-    return Value::Function(Function {
+    return Value::Function(Box::from(Function {
         name: String::from("or"),
         func_type: BuiltIn(print),
-        param_amt: Unlimited  
-    })
+        params: vec![],
+    }))
 }
 
 pub fn load(state : &mut State) {

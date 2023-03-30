@@ -1,6 +1,6 @@
 use core::panic;
 
-use crate::{function::{evaluate_function, Procedure}, value::Value, state::State, parsing::{tokenizer::ParserPosition}};
+use crate::{function::{evaluate_function}, value::Value, state::State, parsing::{tokenizer::ParserPosition}};
 
 pub struct Expression {
     pub position : ParserPosition,
@@ -13,7 +13,7 @@ pub enum ExpressionType {
     FunctionCall(Box<Expression>, Vec<Expression>),
     Assignment(String, Box<Expression>),
     Pipe(Box<Expression>, Box<Expression>),
-    Procedure(Procedure),
+    Procedure(Vec<Expression>),
 }
 
 impl ExpressionType {

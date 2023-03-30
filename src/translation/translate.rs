@@ -1,6 +1,6 @@
 use std::vec;
 
-use crate::{parsing::{token::{Token, TokenType::{Identifier, StringLiteral, OpenParentheses, Operator, IntegerLiteral, self}}, tokenizer::{ParserPosition, PARSER_ZERO}}, expression::{Expression, ExpressionType}, value::{Value, ReferenceVal}};
+use crate::{parsing::{token::{Token, TokenType::{Identifier, StringLiteral, OpenParentheses, Operator, IntegerLiteral, self}}, tokenizer::{ParserPosition, PARSER_ZERO}}, expression::{Expression, ExpressionType}, value::{Value}, function::Function};
 
 use super::translation_error::{TranslationError, ErrorType};
 
@@ -56,6 +56,42 @@ pub fn translate_sequence(tokens : &mut Vec<Token>) -> Result<Expression, Transl
                 }
             }
 
+        } else if let TokenType::OpenBracket = peek.token_type {
+            let mut internal : Vec<Token> = vec![];
+
+            loop {
+                let token = tokens.pop().unwrap();
+
+                if let TokenType::CloseBracket = token.token_type {
+                    break;
+                }
+
+                internal.push(token);
+            }
+
+            let mut args : Vec<String> = vec![];
+
+            while expressions.len() > 0 {
+                let expr_peek = expressions.pop().unwrap();
+            
+                if let ExpressionType::Reference(ref name) = expr_peek.expr_type {
+                    args.push(name.clone());
+                } else {
+                    expressions.push(expr_peek);
+                    break;
+                }
+            }
+
+            let expr = translate(&mut internal).unwrap();
+
+            expressions.push(Expression{
+                position: peek.position,
+                expr_type: ExpressionType::Value(Value::Function(Box::from(Function{
+                    name: String::from(""),
+                    func_type: crate::function::FunctionType::Defined(expr),
+                    params: args,
+                }))),
+            });
         } else if let TokenType::NewLine = peek.token_type {
             break; // end read loop
         } else if let TokenType::Assignment = peek.token_type {

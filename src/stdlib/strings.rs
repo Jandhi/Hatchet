@@ -15,11 +15,11 @@ fn make_print() -> Value {
         Value::None
     }
 
-    return Value::Function(Function {
+    return Value::Function(Box::from(Function {
         name: String::from("print"), 
         func_type: BuiltIn(print),
-        param_amt: Unlimited  
-    })
+        params: vec![],
+    }))
 }
 
 pub fn load(state : &mut State) {

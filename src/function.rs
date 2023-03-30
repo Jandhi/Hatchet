@@ -6,19 +6,19 @@ use crate::{value::Value, expression::{Expression, evaluate}, state::State, scop
 pub struct Function {
     pub name : String,
     pub func_type : FunctionType,
-    pub param_amt : ParameterAmount
+    pub params : Vec<String>,
 }
 
 pub enum FunctionType {
     BuiltIn(fn(Args) -> Value),
-    Procedure(Procedure),
+    Defined(Expression),
 }
 
 impl Clone for FunctionType {
     fn clone(&self) -> Self {
         match self {
             Self::BuiltIn(func) => Self::BuiltIn(func.clone()),
-            Self::Procedure(expressions) => todo!("Procedures can't be cloned")
+            Self::Defined(expressions) => todo!("Procedures can't be cloned")
         }
     }
 }
@@ -32,21 +32,21 @@ pub enum ParameterAmount {
 }
 
 pub type Args = Vec<Value>;
-pub type Procedure = Vec<Expression>;
 
 pub fn evaluate_function(func : &Function, args : Args, state : &mut State) -> Value {
     match &func.func_type {
         FunctionType::BuiltIn(function) => return function(args),
-        FunctionType::Procedure(proc) => {
-            state.scopes.push(Scope { name : String::from("Function"), identifiers: HashMap::new(), operators: HashMap::new(), arguments: args });
-            let mut val = Value::None;
+        FunctionType::Defined(expr) => {
+            let mut scope = Scope { name : String::from("Function"), identifiers: HashMap::new(), operators: HashMap::new(), arguments: args };
 
-            for expr in proc {
-                val = evaluate(expr, state)
+            
+            for param in &func.params {
+                let arg = scope.arguments.pop().unwrap();
+                scope.identifiers.insert(param.clone(), arg);    
             }
 
-            state.scopes.pop();
-            return val;
+            state.scopes.push(scope);
+            evaluate(expr, state)
         }
     }
 }

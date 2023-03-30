@@ -20,6 +20,9 @@ pub enum TokenType {
     
     OpenParentheses,
     CloseParentheses,
+
+    OpenBracket,  // {
+    CloseBracket, // }
     
     Pipe,
     Assignment,

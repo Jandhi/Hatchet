@@ -19,7 +19,7 @@ pub fn load(state : &mut State) {
 }
 
 fn make_add() -> Value {
-    return Value::Function(Function {
+    return Value::Function(Box::from(Function {
         name: String::from("add"),
         func_type: BuiltIn(|args| {
             match &args[0] {
@@ -43,13 +43,12 @@ fn make_add() -> Value {
                 _ => panic!("You cannot add {} and {}", &args[0], &args[1])
             }
         }),
-        param_amt: ParameterAmount::Exact { amount: 2 }  
-    })
+        params: vec![],
+    }))
 }
 
 fn make_sub() -> Value {
-    return Value::Function(
-        Function {
+    return Value::Function(Box::from(Function {
             name: String::from("sub"), 
             func_type: BuiltIn(|args| {
             if args.len() == 1 {
@@ -69,12 +68,12 @@ fn make_sub() -> Value {
                 }
             }
         }), 
-        param_amt: ParameterAmount::Range { min: 1, max: 2 } 
-    })
+        params: vec![],
+    }))
 }
 
 fn make_mult() -> Value {
-    return Value::Function(Function {
+    return Value::Function(Box::from(Function {
         name: String::from("mult"), 
         func_type: BuiltIn(|args| {
             match &args[0] {
@@ -87,12 +86,12 @@ fn make_mult() -> Value {
                 _ => panic!("You cannot multiply {} and {}", &args[0], &args[1])
             }
         }),
-        param_amt: ParameterAmount::Exact { amount: 2 }  
-    })
+        params: vec![],
+    }))
 }
 
 fn make_div() -> Value {
-    return Value::Function(Function {
+    return Value::Function(Box::from(Function {
         name: String::from("div"), 
         func_type: BuiltIn(|args| {
             match &args[0] {
@@ -105,6 +104,6 @@ fn make_div() -> Value {
                 _ => panic!("You cannot divide {} and {}", &args[0], &args[1])
             }
         }),
-        param_amt: ParameterAmount::Exact { amount: 2 }  
-    })
+        params: vec![],
+    }))
 }
