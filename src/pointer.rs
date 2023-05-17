@@ -4,7 +4,7 @@ use crate::{memory::{allocate, deallocate}, flags::LOG_OBJECT_LIFECYCLES};
 
 pub struct Pointer<T> where T : Display {
     ptr : *mut T,
-    is_owner : bool
+    pub is_owner : bool
 }
 
 impl<T> Drop for Pointer<T> where T : Display {
@@ -53,11 +53,13 @@ impl<T> Pointer<T> where T : Display {
         unsafe {
             if LOG_OBJECT_LIFECYCLES {
                 let raw : u64 = transmute(self.ptr);
-                println!("Freeing ptr at {} with value {}", raw, self.get());
+                println!("Freeing ptr at {} with value {{{}}}", raw, self.get());
             }
         }
 
         deallocate(self.ptr);
+
+        self.is_owner = false;
     }
 
     pub fn get(&self) -> &mut T {
