@@ -1,4 +1,0 @@
-x = 'hello'
-x = x + '_'
-y = 'world'
-print x + y

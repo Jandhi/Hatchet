@@ -1,0 +1,6 @@
+namespace Hatchet
+{
+    class Assignment {
+        
+    }
+}
