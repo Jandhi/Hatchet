@@ -9,10 +9,10 @@ pub fn read_file(file_name : String) -> Vec<Lexeme> {
 
     for line in reader.lines() {
         for c in line.expect("lines failed").chars() {
-            lexer.Consume(c);
+            lexer.consume(c);
         }
 
-        lexer.Consume('\n');
+        lexer.consume('\n');
     }
 
     return lexer.lexemes;

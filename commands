@@ -1,1 +1,1 @@
-run cpp: clang++ file.cpp && ./a.out && rm a.out
+cargo run && clang++ out.cpp && ./a.out && rm a.out

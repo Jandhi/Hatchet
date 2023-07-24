@@ -1,14 +1,19 @@
 use std::{rc::Rc, ops::Deref};
+use crate::my_types::Text;
+use crate::literal::Literal;
 
-use super::literal::Literal;
-
-pub type Text = Rc<str>;
-
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Lexeme {
     Literal(Literal),
     Identifier(Text),
-    Operator(Text)    
+    Operator(Text),
+    UnaryOperator(Text),
+
+    Newline,
+    LeftParen,
+    RightParen,
+
+    Pipe,
 }
 
 pub fn make_lexer() -> Lexer {
@@ -22,7 +27,7 @@ pub struct Lexer {
 }
 
 const OPERATORS: &'static [&'static str] = &[
-    "+", "-", "<", ">", "=", ":=", ":", "*", "/", "|", "&", "|>"
+    "+", "-", "<", ">", "=", ":=", ":", "*", "/", "|", "&"
 ];
 
 impl Lexer {
@@ -31,7 +36,13 @@ impl Lexer {
     }
 
     fn to_lexeme(&self, text : Text) -> Lexeme {
+        if self.in_quotes {
+            return Lexeme::Literal(Literal::String(text));
+        }
 
+        if text.deref() == "|>" {
+            return Lexeme::Pipe
+        }
 
         for operator in OPERATORS {
             if operator.deref().eq(text.as_ref()) {
@@ -39,6 +50,7 @@ impl Lexer {
             }
         }
 
+        // Is Integer
         if text.chars().all(|c| {
             match c {
                 '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => true,
@@ -51,7 +63,7 @@ impl Lexer {
         return Lexeme::Identifier(text);
     }
 
-    pub fn Push(&mut self) {
+    pub fn push(&mut self) {
         if self.buffer.is_empty() {
             return;
         }  
@@ -61,20 +73,20 @@ impl Lexer {
         self.buffer.clear();
     }
 
-    pub fn Consume(&mut self, char : char) {
+    pub fn consume(&mut self, char : char) {
         match char {
             '"' => {
                 if self.in_quotes {
-                    self.Push();
+                    self.push();
                     self.in_quotes = false;
                 } else {
-                    self.Push();
+                    self.push();
                     self.in_quotes = true;
                 }
             }
 
-            ' ' | '\n' => {
-                self.Push()
+            ' ' | '\n' if !self.in_quotes => {
+                self.push()
             }
 
             letter => self.buffer.push(letter)
