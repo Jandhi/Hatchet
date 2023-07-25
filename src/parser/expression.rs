@@ -1,6 +1,8 @@
+
+
 use crate::{literal::Literal, types::hatchet_type::{HasType, HatchetType}};
 
-use super::{function::call::Call, program::{Writer, Program}};
+use super::{function::call::Call, program::{CodeWriter, Program}, context::WriterContext};
 
 
 #[derive(Debug)]
@@ -9,11 +11,11 @@ pub enum Expression {
     FunctionCall(Call),
 }
 
-impl Writer for Expression {
-    fn write(&self, buffer : &mut String, program : &Program) {
+impl CodeWriter for Expression {
+    fn write(&self, buffer : &mut String, program : &Program, context : &WriterContext) {
         match &self {
-            Expression::Literal(literal) => literal.write(buffer, program),
-            Expression::FunctionCall(call) => call.write(buffer, program),
+            Expression::Literal(literal) => literal.write(buffer, program, context),
+            Expression::FunctionCall(call) => call.write(buffer, program, context),
         };
     }
 }

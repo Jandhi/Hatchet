@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use crate::{my_types::Text, types::hatchet_type::HatchetType, parser::{expression::Expression, program::{Writer, Program}}};
+use crate::{my_types::Text, types::hatchet_type::HatchetType, parser::{expression::Expression, program::{CodeWriter, Program}, context::WriterContext}};
 
 pub struct Function {
     pub name : Text,
@@ -14,8 +14,8 @@ pub fn get_function_cpp_name(name : Text) -> Text {
     Rc::from(format!("fn_{}", name).as_str())
 }
 
-impl Writer for Function {
-    fn write(&self, buffer : &mut String, program : &Program) {
+impl CodeWriter for Function {
+    fn write(&self, buffer : &mut String, program : &Program, context : &WriterContext) {
         let name = get_function_cpp_name(self.name.clone());
         let mut args = String::from("");
 
@@ -24,13 +24,13 @@ impl Writer for Function {
                 args.push_str(", ");
             }
 
-            arg.write(&mut args, program);
+            arg.write(&mut args, program, context);
             args.push_str(" ");
             args.push_str(format!("{}", get_arg_name(i)).as_str());
         }
 
         let mut return_val = String::from("");
-        self.return_type.write(&mut return_val, program);
+        self.return_type.write(&mut return_val, program, context);
 
         buffer.push_str(format!("{} {}({}) {{\n", return_val, name, args).as_str());
         match &self.definition {

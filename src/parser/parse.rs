@@ -1,10 +1,12 @@
+use std::ops::Index;
+
 use crate::{lexer::lexemes::Lexeme, parser::function::call::Call};
 
-use super::{function::function::Function, expression::Expression, program::Program};
+use super::{function::function::Function, expression::Expression, program::Program, statement::Statement, call_checker::CheckCalls};
 
 pub struct Parser {
     pub functions : Vec<Function>,
-    pub main : Vec<Expression>,
+    pub main : Vec<Statement>,
 }
 
 impl Parser {
@@ -38,9 +40,15 @@ impl Parser {
         }
     }
 
-    fn parse_line(&self, mut lexemes : &mut Vec<Lexeme>) -> Expression {
+    fn parse_line(&self, mut lexemes : &mut Vec<Lexeme>) -> Statement {
         assert!(lexemes.len() > 0, "empty lines should be ignored");
         println!("Parsing line: {:?}", lexemes);
+
+        if lexemes.contains(&Lexeme::Assignment) {
+            let pos = lexemes.iter().position(|lexeme| lexeme == &Lexeme::Assignment);
+
+
+        }
 
         let mut lexeme_lists = vec![];
         let mut curr_list = vec![];
@@ -66,7 +74,7 @@ impl Parser {
             expr = self.parse_piped_call(&mut lexeme_lists[i], expr);
         };
 
-        expr
+        Statement::Expression(expr)
     }
 
     fn parse_expression_or_call(&self, mut lexemes : &mut Vec<Lexeme>) -> Expression {
@@ -142,39 +150,9 @@ impl Parser {
         }
 
         for expr in &self.main {
-            check_for_calls(expr, &mut functions);
+            expr.check_for_calls(&mut functions)
         }
     }
 
     
-}
-
-fn check_for_calls(expr : &Expression, functions : &mut Vec<&mut Function>) {
-    match expr {
-        Expression::FunctionCall(call) => {
-            register_call(call, functions)
-        },
-        Expression::Literal(_) => {}, // okay!
-    }
-}
-
-fn register_call(call : &Call, functions : &mut Vec<&mut Function>) {
-    let mut found = false;
-
-    for func in &mut *functions {
-        let left : &str = &call.func_name;
-        let right : &str = &func.name;
-        if  left == right {
-            // match!
-            func.used = true;
-            found = true;
-            break;
-        }
-    }
-
-    assert!(found, "No matching function found for {:?}", call);
-
-    for expr in &call.args {
-        check_for_calls(expr, functions);
-    }
 }

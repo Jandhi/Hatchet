@@ -1,7 +1,7 @@
 
-use std::{rc::Rc, iter::Product, ops::Deref};
+use std::{rc::Rc};
 
-use crate::{my_types::Text, parser::program::{Writer, self, Program}};
+use crate::{my_types::Text, parser::{program::{CodeWriter, Program}, context::WriterContext}};
 
 use super::{primitive_type::PrimitiveType, union_type::UnionType, composite_type::CompositeType};
 
@@ -50,10 +50,10 @@ impl HatchetType {
     }
 }
 
-impl Writer for HatchetType {
-    fn write(&self, buffer : &mut String, program : &Program) {
+impl CodeWriter for HatchetType {
+    fn write(&self, buffer : &mut String, program : &Program, context : &WriterContext) {
         match self {
-            HatchetType::Primitive(primitive) => primitive.write(buffer, program),
+            HatchetType::Primitive(primitive) => primitive.write(buffer, program, context),
             HatchetType::Union(_) => todo!(),
             HatchetType::Composite(_) => todo!(),
             HatchetType::Constant(_) => todo!(),

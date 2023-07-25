@@ -1,6 +1,10 @@
 #include <iostream>
 
+void print(const char* arg) {
+    std::cout << arg << std::endl;
+}
+
 int main() {
-    std::cout << "Hello world from cpp" << std::endl;
+    print("Hello world from c++!");
     return 0;
 }

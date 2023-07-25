@@ -1,18 +1,21 @@
-use std::fmt::Write;
 
-use super::{function::{function::Function}, expression::Expression};
+
+
+
+use super::{function::{function::Function}, statement::Statement, context::WriterContext};
 
 pub struct Program {
     pub functions : Vec<Function>,
-    pub main : Vec<Expression>,
+    pub main : Vec<Statement>,
 }
 
-pub trait Writer {
-    fn write(&self, buffer : &mut String, program : &Program);
+
+pub trait CodeWriter {
+    fn write(&self, buffer : &mut String, program : &Program, context : &WriterContext);
 }
 
-impl Writer for Program {
-    fn write(&self, buffer : &mut String, program : &Program) {
+impl CodeWriter for Program {
+    fn write(&self, buffer : &mut String, _program : &Program, context : &WriterContext) {
         let mut pre = String::from("");
         let mut main = String::from("");
 
@@ -20,21 +23,17 @@ impl Writer for Program {
 
         for function in &self.functions {
             if function.used {
-                function.write(&mut pre, &self);
+                function.write(&mut pre, &self, context);
             }
         };
 
-        for expr in &self.main {
-            expr.write(&mut main, &self);
+        for statement in &self.main {
+            statement.write(&mut main, &self, context);
             main.push(';');
             main.push('\n');
         }
 
         buffer.push_str(format!(
-            "{}
-            int main() {{
-                {}
-            }}
-            ", pre, main).as_str());
+            "{}\nint main() {{\n{}}}", pre, main).as_str());
     }
 }

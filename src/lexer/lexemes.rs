@@ -9,6 +9,8 @@ pub enum Lexeme {
     Operator(Text),
     UnaryOperator(Text),
 
+    Assignment,
+
     Newline,
     LeftParen,
     RightParen,
@@ -42,6 +44,10 @@ impl Lexer {
 
         if text.deref() == "|>" {
             return Lexeme::Pipe
+        }
+
+        if text.deref() == ":=" {
+            return Lexeme::Assignment
         }
 
         for operator in OPERATORS {
@@ -93,5 +99,17 @@ impl Lexer {
         };
 
         
+    }
+}
+
+impl PartialEq for Lexeme {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Literal(l0), Self::Literal(r0)) => l0 == r0,
+            (Self::Identifier(l0), Self::Identifier(r0)) => l0 == r0,
+            (Self::Operator(l0), Self::Operator(r0)) => l0 == r0,
+            (Self::UnaryOperator(l0), Self::UnaryOperator(r0)) => l0 == r0,
+            _ => core::mem::discriminant(self) == core::mem::discriminant(other),
+        }
     }
 }

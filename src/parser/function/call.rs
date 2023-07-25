@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use crate::{parser::{expression::Expression, program::{Writer, Program}}, my_types::Text, types::hatchet_type::HasType};
+use crate::{parser::{expression::Expression, program::{CodeWriter, Program}, context::WriterContext}, my_types::Text, types::hatchet_type::HasType};
 
 use super::function::{Function, get_function_cpp_name};
 
@@ -47,8 +47,8 @@ impl Call {
     }
 }
 
-impl Writer for Call {
-    fn write(&self, buffer : &mut String, program : &Program) {
+impl CodeWriter for Call {
+    fn write(&self, buffer : &mut String, program : &Program, context : &WriterContext) {
         let func = self.find_matching_func(program);
 
         buffer.push_str(&get_function_cpp_name(self.func_name.clone()));
@@ -59,7 +59,7 @@ impl Writer for Call {
                 buffer.push_str(", ");
             }
 
-            arg.write(buffer, program);   
+            arg.write(buffer, program, context);   
         }
 
         buffer.push_str(")");

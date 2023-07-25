@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use crate::{my_types::Text, parser::program::{Writer, Program}};
+use crate::{my_types::Text, parser::{program::{CodeWriter, Program}, context::WriterContext}};
 
 use super::hatchet_type::HatchetType;
 
@@ -27,8 +27,8 @@ impl PartialEq for PrimitiveType {
     }
 }
 
-impl Writer for PrimitiveType {
-    fn write(&self, buffer : &mut String, program : &Program) {
+impl CodeWriter for PrimitiveType {
+    fn write(&self, buffer : &mut String, _program : &Program, context : &WriterContext) {
         match self {
             PrimitiveType::String => buffer.push_str("const char*"),
         }
