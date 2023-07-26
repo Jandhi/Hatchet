@@ -1,8 +1,6 @@
-use std::ops::Index;
+use crate::{lexer::lexemes::Lexeme, parser::{function::call::Call, assignment::Assignee}, my_types::Text, types::{hatchet_type::HatchetType::Unknown, type_checker::TypeChecker}};
 
-use crate::{lexer::lexemes::Lexeme, parser::function::call::Call};
-
-use super::{function::function::Function, expression::Expression, program::Program, statement::Statement, call_checker::CheckCalls};
+use super::{function::function::Function, expression::{Expression, ExpressionType}, program::Program, statement::Statement, call_checker::CheckCalls, context::{make_empty_context}};
 
 pub struct Parser {
     pub functions : Vec<Function>,
@@ -20,6 +18,7 @@ impl Parser {
                 Lexeme::Newline => {
                     if line.len() > 0 {
                         self.main.push(self.parse_line(&mut line));
+                        line = vec![];
                     }
                 }
                 _ => {
@@ -32,6 +31,16 @@ impl Parser {
             self.main.push(self.parse_line(&mut line));
         }
 
+
+        // Type check here
+        let mut context = make_empty_context();
+        for func in &self.functions {
+            context.functions.push(func);
+        }
+        for statement in &mut self.main {
+            statement.check_type(&mut context);
+        }
+
         self.check_calls();
 
         Program {
@@ -40,16 +49,27 @@ impl Parser {
         }
     }
 
-    fn parse_line(&self, mut lexemes : &mut Vec<Lexeme>) -> Statement {
+    fn parse_line(&self, lexemes : &mut Vec<Lexeme>) -> Statement {
         assert!(lexemes.len() > 0, "empty lines should be ignored");
         println!("Parsing line: {:?}", lexemes);
 
         if lexemes.contains(&Lexeme::Assignment) {
-            let pos = lexemes.iter().position(|lexeme| lexeme == &Lexeme::Assignment);
 
+            match lexemes.remove(0) {
+                Lexeme::Identifier(name) => {
+                    lexemes.remove(0); // assignment
+
+                    return Statement::Assignment(Assignee::Single(name), self.parse_expression(lexemes))
+                }
+                lexeme => panic!("Assignment must start with identifier! Started with {:?}", lexeme),
+            }
 
         }
 
+        Statement::Expression(self.parse_expression(lexemes))
+    }
+
+    fn parse_pipes(&self, lexemes : &mut Vec<Lexeme>) -> Expression {
         let mut lexeme_lists = vec![];
         let mut curr_list = vec![];
 
@@ -67,49 +87,53 @@ impl Parser {
 
         lexeme_lists.push(curr_list);
 
-        let mut expr = self.parse_expression_or_call(&mut lexeme_lists[0]);
+        let mut expr = self.parse_expression(&mut lexeme_lists[0]);
         
 
         for i in 1..lexeme_lists.len() {
             expr = self.parse_piped_call(&mut lexeme_lists[i], expr);
         };
 
-        Statement::Expression(expr)
+        expr
     }
 
-    fn parse_expression_or_call(&self, mut lexemes : &mut Vec<Lexeme>) -> Expression {
-        let first = lexemes.pop().unwrap();
+    fn parse_expression(&self, lexemes : &mut Vec<Lexeme>) -> Expression {
+        if lexemes.contains(&Lexeme::Pipe) {
+            return self.parse_pipes(lexemes);
+        }
+
+        let first = lexemes.remove(0);
         match first {
-            Lexeme::Literal(literal) => return Expression::Literal(literal),
+            Lexeme::Literal(literal) => return ExpressionType::Literal(literal).as_expr(),
+            Lexeme::Identifier(identity) => {
+                self.parse_identifer(identity, lexemes)
+            },
             _ => {
-                lexemes.insert( 0, first);
-                self.parse_call(lexemes)
+                todo!("Can't match other identifiers yet")
             }
         }
     }
 
-    fn parse_call(&self, mut lexemes : &mut Vec<Lexeme>) -> Expression {
-        let first = lexemes.pop().unwrap();
+    fn parse_identifer(&self, identifier : Text, lexemes : &mut Vec<Lexeme>) -> Expression {
+        let mut args = vec![];
 
-        match first {
-            Lexeme::Identifier(identifier) => {
-                let mut args = vec![];
-
-                while lexemes.len() > 0 {
-                    args.push(self.parse_expression(lexemes))
-                }
-
-                Expression::FunctionCall(Call{
-                    func_name: identifier,
-                    args: args,
-                })                
-            },
-            _ => todo!()
+        if lexemes.len() == 0 {
+            return ExpressionType::VariableRead(identifier).as_expr();
         }
+
+        while lexemes.len() > 0 {
+            args.push(self.parse_expression(lexemes))
+        }
+        
+        ExpressionType::FunctionCall(Call{
+            func_name: identifier,
+            args: args,
+            my_type: Unknown,
+        }).as_expr()
     }
 
-    fn parse_piped_call(&self, mut lexemes : &mut Vec<Lexeme>, piped_value : Expression) -> Expression {
-        let first = lexemes.pop().unwrap();
+    fn parse_piped_call(&self, lexemes : &mut Vec<Lexeme>, piped_value : Expression) -> Expression {
+        let first = lexemes.remove(0);
 
         match first {
             Lexeme::Identifier(identifier) => {
@@ -119,38 +143,19 @@ impl Parser {
                     args.push(self.parse_expression(lexemes))
                 }
 
-                Expression::FunctionCall(Call{
+                ExpressionType::FunctionCall(Call{
                     func_name: identifier,
                     args: args,
-                })                
+                    my_type: Unknown,
+                }).as_expr()                
             },
             _ => todo!("{:?}", first)
         }
     }
 
-    fn parse_expression(&self, mut lexemes : &mut Vec<Lexeme>) -> Expression
-    {
-        let first = lexemes.pop().unwrap();
-
-        match first {
-            Lexeme::Literal(literal) => Expression::Literal(literal),
-            _ => todo!(),
-        }
-    }
-
-    fn parse_parens(&mut self, mut lexemes : &mut Vec<Lexeme>) -> Expression {
-        todo!()
-    }
-
     fn check_calls(&mut self) {
-        let mut functions  = vec![];
-
-        for func in &mut self.functions {
-            functions.push(func);
-        }
-
-        for expr in &self.main {
-            expr.check_for_calls(&mut functions)
+        for expr in &mut self.main {
+            expr.check_for_calls(&mut self.functions)
         }
     }
 

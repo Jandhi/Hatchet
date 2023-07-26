@@ -1,32 +1,37 @@
+use crate::{literal::Literal, types::{hatchet_type::{HatchetType}}, my_types::Text};
 
-
-use crate::{literal::Literal, types::hatchet_type::{HasType, HatchetType}};
-
-use super::{function::call::Call, program::{CodeWriter, Program}, context::WriterContext};
+use super::{function::call::Call, program::{CodeWriter}, context::Context, variables::find_variable};
 
 
 #[derive(Debug)]
-pub enum Expression {
+pub struct Expression {
+    pub expr_type : ExpressionType,
+    pub my_type : HatchetType
+}
+
+#[derive(Debug)]
+pub enum ExpressionType {
     Literal(Literal),
     FunctionCall(Call),
+    VariableRead(Text),
+}
+
+impl ExpressionType {
+    pub fn as_expr(self) -> Expression {
+        Expression { expr_type: self, my_type: HatchetType::Unknown }
+    }
 }
 
 impl CodeWriter for Expression {
-    fn write(&self, buffer : &mut String, program : &Program, context : &WriterContext) {
-        match &self {
-            Expression::Literal(literal) => literal.write(buffer, program, context),
-            Expression::FunctionCall(call) => call.write(buffer, program, context),
+    fn write(&self, buffer : &mut String,  context : &mut Context) {
+        match &self.expr_type {
+            ExpressionType::Literal(literal) => literal.write(buffer, context),
+            ExpressionType::FunctionCall(call) => call.write(buffer, context),
+            ExpressionType::VariableRead(name) => {
+                let variable = find_variable(name, context);
+                variable.write(buffer, &mut context.clone());
+            },
         };
     }
 }
 
-impl HasType for Expression {
-    fn get_type(&self, program : &Program) -> HatchetType {
-        match &self {
-            Expression::Literal(literal) => literal.get_type(program),
-            Expression::FunctionCall(call) => {
-                return call.get_func(program).return_type.clone()
-            },
-        }
-    }
-}

@@ -2,7 +2,9 @@
 
 
 
-use super::{function::{function::Function}, statement::Statement, context::WriterContext};
+
+
+use super::{function::{function::Function}, statement::Statement, context::Context};
 
 pub struct Program {
     pub functions : Vec<Function>,
@@ -11,11 +13,11 @@ pub struct Program {
 
 
 pub trait CodeWriter {
-    fn write(&self, buffer : &mut String, program : &Program, context : &WriterContext);
+    fn write(&self, buffer : &mut String, context : &mut Context);
 }
 
 impl CodeWriter for Program {
-    fn write(&self, buffer : &mut String, _program : &Program, context : &WriterContext) {
+    fn write(&self, buffer : &mut String, context : &mut Context) {
         let mut pre = String::from("");
         let mut main = String::from("");
 
@@ -23,12 +25,12 @@ impl CodeWriter for Program {
 
         for function in &self.functions {
             if function.used {
-                function.write(&mut pre, &self, context);
+                function.write(&mut pre,  context);
             }
         };
 
         for statement in &self.main {
-            statement.write(&mut main, &self, context);
+            statement.write(&mut main,  context);
             main.push(';');
             main.push('\n');
         }

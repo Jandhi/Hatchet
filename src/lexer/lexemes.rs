@@ -91,10 +91,15 @@ impl Lexer {
                 }
             }
 
-            ' ' | '\n' if !self.in_quotes => {
-                self.push()
+            ' ' if !self.in_quotes => {
+                self.push();
             }
 
+            '\n' if !self.in_quotes => {
+                self.push();
+                self.lexemes.push(Lexeme::Newline);
+            }
+ 
             letter => self.buffer.push(letter)
         };
 

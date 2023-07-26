@@ -2,7 +2,7 @@ use std::{fs::File, io::Write};
 
 use read::read_file;
 
-use crate::parser::{program::{CodeWriter}, parse::Parser, context::{make_context}};
+use crate::parser::{program::{CodeWriter}, parse::Parser, context::{make_empty_context}};
 
 pub mod lexer {
     pub mod lexemes;
@@ -14,6 +14,9 @@ pub mod stdlib {
     pub mod stdlib;
     pub mod print;
     pub mod echo;
+    pub mod math {
+        pub mod add;
+    }
 }
 pub mod parser {
     pub mod program;
@@ -23,6 +26,7 @@ pub mod parser {
     pub mod expression;
     pub mod assignment;
     pub mod context;
+    pub mod variables;
     pub mod function {
         pub mod call;
         pub mod function;
@@ -30,6 +34,7 @@ pub mod parser {
 }
 pub mod my_types;
 pub mod types {
+    pub mod type_checker;
     pub mod hatchet_type;
     pub mod composite_type;
     pub mod primitive_type;
@@ -47,7 +52,7 @@ fn main() {
 
     println!("{:?}", parsed.main);
 
-    parsed.write(&mut buffer, &parsed, &make_context());
+    parsed.write(&mut buffer, &mut make_empty_context());
     println!("{}", buffer);
 
     let mut f = File::create("out.cpp").expect("");

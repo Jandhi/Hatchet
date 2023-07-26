@@ -1,4 +1,4 @@
-use crate::{parser::{program::{CodeWriter, Program}, context::WriterContext}, my_types::Text, types::{hatchet_type::HasType, primitive_type::STRING_TYPE}};
+use crate::{parser::{program::{CodeWriter, Program}, context::Context}, my_types::Text, types::{primitive_type::{STRING_TYPE, INT_TYPE}}};
 
 
 #[derive(Debug, Clone)]
@@ -9,27 +9,22 @@ pub enum Literal {
 }
 
 impl CodeWriter for Literal {
-    fn write(&self, buffer : &mut String, program : &Program, context : &WriterContext) {
+    fn write(&self, buffer : &mut String,_context : &mut Context) {
         match self {
             Literal::String(text) => {
                 buffer.push('\"');
                 buffer.push_str(text);
                 buffer.push('\"');
             },
+            Literal::Int32(text) => {
+                buffer.push_str(format!("{}", text).as_str());
+            },
             _ => todo!()
         };
     }
 }
 
-impl HasType for Literal {
-    fn get_type(&self, program : &Program) -> crate::types::hatchet_type::HatchetType {
-        match &self {
-            Literal::String(_) => STRING_TYPE,
-            Literal::Int32(_) => todo!(),
-            Literal::UInt32(_) => todo!(),
-        }
-    }
-}
+
 
 impl PartialEq for Literal {
     fn eq(&self, other: &Self) -> bool {
