@@ -1,6 +1,6 @@
 use std::{ops::Deref};
 
-use crate::types::{type_checker::HasType, hatchet_type::{FunctionType, HatchetType}};
+use crate::types::{type_checker::HasType, hatchet_type::{HatchetType}};
 
 use super::{expression::Expression, program::{CodeWriter}, assignment::Assignee, context::{Context}, variables::{Variable, find_variable}};
 
@@ -32,11 +32,13 @@ fn write_assignment(assignee : &Assignee, expr : &Expression, buffer : &mut Stri
             } else {
                 let variable = Variable { 
                     name: name.clone(), 
-                    htype: expr.get_type()
+                    htype: expr.get_type(),
+                    is_constant: true,
                 };
 
-                if let HatchetType::Function(func) = variable.htype.clone() {
+                if let HatchetType::Function(_func) = variable.htype.clone() {
                     // Write function pointer!
+                    
 
                     // I should do this through typedefs
                     todo!();

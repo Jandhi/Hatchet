@@ -1,6 +1,6 @@
-use std::ops::Deref;
 
-use crate::{parser::{program::Program, context::Context, expression::{Expression, ExpressionType}, variables::{find_variable, Variable}, function::call::Call, statement::Statement, assignment::Assignee}, literal::{Literal, self}};
+
+use crate::{parser::{context::Context, expression::{Expression, ExpressionType}, variables::{find_variable, Variable}, function::call::Call, statement::Statement, assignment::Assignee}, literal::{Literal}};
 
 use super::{hatchet_type::HatchetType, primitive_type::{INT_TYPE, STRING_TYPE}};
 
@@ -14,7 +14,7 @@ pub trait TypeChecker {
 }
 
 impl HasType for Literal {
-    fn set_type(&mut self, my_type : crate::types::hatchet_type::HatchetType) {
+    fn set_type(&mut self, _my_type : crate::types::hatchet_type::HatchetType) {
         // nothing needed
     }
 
@@ -93,12 +93,14 @@ impl TypeChecker for Statement {
                     Assignee::Single(name) => {
                         expr.check_type(context);
 
-                        if let Some(var) = context.variables.iter().filter(|var| &var.name == name).last() {
+                        if let Some(var) = context.variables.iter_mut().filter(|var| &var.name == name).last() {
                             assert!(expr.get_type().is_type(&var.htype), "Assigning {} to {}", expr.get_type().get_name(), var.htype.get_name());
+                            var.is_constant = false;
                         } else {
                             context.variables.push(Variable{
                                 name: name.clone(),
                                 htype: expr.get_type(),
+                                is_constant : true,
                             })
                         }                        
                     },

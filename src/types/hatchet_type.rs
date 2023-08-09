@@ -1,7 +1,7 @@
 
 use std::{rc::Rc};
 
-use crate::{my_types::Text, parser::{program::{CodeWriter, Program}, context::Context}};
+use crate::{my_types::Text, parser::{program::{CodeWriter}, context::Context}};
 
 use super::{primitive_type::PrimitiveType, union_type::UnionType, composite_type::CompositeType};
 
@@ -14,7 +14,8 @@ pub enum HatchetType {
     Pointer(Rc<HatchetType>),
     Function(Rc<FunctionType>),
     None,
-    Unknown
+    Unknown,
+    Any
 }
 
 #[derive(Debug, Clone)]
@@ -41,7 +42,7 @@ impl FunctionType {
         let mut arg_string = String::from("");
 
         for (i, arg) in self.args.iter().enumerate() {
-            if(i > 0) {
+            if i > 0 {
                 arg_string.push_str("_")
             }
 
@@ -63,6 +64,7 @@ impl HatchetType {
             HatchetType::None => Rc::from("None"),
             HatchetType::Unknown => Rc::from("UNKNOWN?"),
             HatchetType::Function(func) => Rc::from(func.signature().as_str()),
+            HatchetType::Any => Rc::from("Any"),
         }
     }
 
@@ -102,7 +104,8 @@ impl CodeWriter for HatchetType {
             },
             HatchetType::None => buffer.push_str("void"),
             HatchetType::Unknown => panic!("Type is not known!"),
-            HatchetType::Function(func) => {todo!()},
+            HatchetType::Function(func) => { buffer.push_str(&func.get_cpp_name())},
+            HatchetType::Any => panic!("This shouldn't happen"),
         };
     }
 }

@@ -1,4 +1,4 @@
-use crate::{parser::{program::{CodeWriter, Program}, context::Context}, my_types::Text, types::{primitive_type::{STRING_TYPE, INT_TYPE}}};
+use crate::{parser::{program::{CodeWriter}, context::Context}, my_types::Text};
 
 
 #[derive(Debug, Clone)]

@@ -2,7 +2,6 @@ use super::{variables::Variable, function::function::Function};
 
 
 
-#[derive(Clone)]
 pub struct Context<'a, 'b> {
     pub variables : Vec<Variable>,
     pub parent_contexts : Vec<&'a Context<'a, 'b>>,
@@ -18,5 +17,11 @@ impl Context<'_, '_> {
         let mut parents = self.parent_contexts.clone();
         parents.push(self);
         Context { variables: self.variables.clone(), parent_contexts: parents, functions: self.functions.clone() }
+    }
+}
+
+impl<'a, 'b> Clone for Context<'a, 'b> {
+    fn clone(&self) -> Self {
+        Self { variables: self.variables.clone(), parent_contexts: self.parent_contexts.clone(), functions: self.functions.clone() }
     }
 }

@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use crate::{my_types::Text, parser::{program::{CodeWriter, Program}, context::Context}};
+use crate::{my_types::Text, parser::{program::{CodeWriter}, context::Context}};
 
 use super::hatchet_type::HatchetType;
 
@@ -8,6 +8,7 @@ use super::hatchet_type::HatchetType;
 pub enum PrimitiveType {
     String,
     Int,
+    List(Rc<HatchetType>),
 }
 
 pub const STRING_TYPE: HatchetType = HatchetType::Primitive(PrimitiveType::String);
@@ -18,6 +19,7 @@ impl PrimitiveType {
         match self {
             PrimitiveType::String => Rc::from("String") ,
             PrimitiveType::Int => Rc::from("Int"),
+            PrimitiveType::List(subtype) => Rc::from(format!("List<{}>", subtype.get_name())),
         }
     }
 }
@@ -37,6 +39,11 @@ impl CodeWriter for PrimitiveType {
         match self {
             PrimitiveType::String => buffer.push_str("std::string"),
             PrimitiveType::Int => buffer.push_str("int"),
+            PrimitiveType::List(subtype) => {
+                buffer.push_str("std::vector<");
+                subtype.write(buffer, context);
+                buffer.push_str(">");
+            },
         }
     }
 }

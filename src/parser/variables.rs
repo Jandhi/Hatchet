@@ -7,7 +7,8 @@ use super::{context::Context, program::CodeWriter};
 #[derive(Clone)]
 pub struct Variable {
     pub name : Text,
-    pub htype : HatchetType
+    pub htype : HatchetType,
+    pub is_constant : bool
 }
 
 pub fn find_variable<'a>(name : &Text, context : &'a Context<'a, 'a>) -> &'a Variable {

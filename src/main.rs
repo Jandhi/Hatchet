@@ -1,4 +1,4 @@
-use std::{fs::File, io::Write};
+use std::{fs::File, io::Write, env};
 
 use read::read_file;
 
@@ -16,6 +16,10 @@ pub mod stdlib {
     pub mod echo;
     pub mod math {
         pub mod add;
+        pub mod sub;
+    }
+    pub mod list {
+        pub mod list;
     }
 }
 pub mod parser {
@@ -42,10 +46,17 @@ pub mod types {
 }
 
 fn main() {
+    let args : Vec<_> = env::args().collect();
+    let mut file_name = String::from("tests/test4.hat");
+
+    if args.len() > 1 {
+        file_name = args[1].clone();
+    }
+
     let mut my_parser = Parser{ functions: vec![], main: vec![] };
     stdlib::stdlib::load(&mut my_parser);
 
-    let mut lexed = read_file(String::from("tests/test2.hat"));
+    let mut lexed = read_file(file_name);
     println!("{:?}", lexed);
     let mut buffer = String::from("");
     let parsed = my_parser.parse(&mut lexed);
@@ -57,4 +68,6 @@ fn main() {
 
     let mut f = File::create("out.cpp").expect("");
     let _ = f.write(buffer.as_bytes());
+
+    println!("----- END OF PARSE -----\n")
 }
