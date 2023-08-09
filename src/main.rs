@@ -47,7 +47,7 @@ pub mod types {
 
 fn main() {
     let args : Vec<_> = env::args().collect();
-    let mut file_name = String::from("tests/test4.hat");
+    let mut file_name = String::from("tests/test2.hat");
 
     if args.len() > 1 {
         file_name = args[1].clone();

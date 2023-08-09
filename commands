@@ -1,1 +1,11 @@
 cargo run && clang++ out.cpp && ./a.out && rm a.out
+
+
+
+
+
+
+cargo run
+g++ out.cpp
+./a.exe
+rm a.exe
