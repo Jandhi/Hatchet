@@ -3,14 +3,3 @@
 /obj
 out.cpp
 *.exe
-target/debug/Hatchet.pdb
-target/debug/Hatchet.exe
-target/debug/hatchet.d
-target/debug/deps/Hatchet.pdb
-target/debug/deps/Hatchet.exe
-target/debug/deps/Hatchet.d
-target/debug/.fingerprint/hatchet-d113675812c43d2b/output-bin-hatchet
-target/debug/.fingerprint/hatchet-d113675812c43d2b/dep-bin-hatchet
-target/debug/.fingerprint/hatchet-d113675812c43d2b/bin-hatchet.json
-target/debug/.fingerprint/hatchet-d113675812c43d2b/bin-hatchet
-target/.rustc_info.json
