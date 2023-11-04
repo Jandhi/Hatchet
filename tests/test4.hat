@@ -1,5 +1,0 @@
-x := "hello world"
-x := "test"
-print x
-y := x
-print y
