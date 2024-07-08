@@ -1,0 +1,6 @@
+x = 1 + 2
+
+if x == 3:
+    print x
+else:
+    print "not 3"
