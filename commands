@@ -1,1 +1,0 @@
-cargo run && clang++ out.cpp && ./a.out && rm a.out
